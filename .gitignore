@@ -1,0 +1,10 @@
+*.d
+*.dSYM
+*.o
+*.fasl
+*.FASL
+*.lisp-temp
+*.tmp
+*~
+*.diff
+*.patch
