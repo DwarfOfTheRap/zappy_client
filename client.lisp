@@ -11,14 +11,54 @@
                                    :if-exists :supersede)
   (ql:quickload "usocket"))
 
+; Connection error
+(defun connection-error ()
+  "Print an error message and exit"
+  (format t "Connection error: unable to connect or corrupt servor message~%")
+  (sb-ext:exit)
+  )
+
+;get coordinate from string
+(defun get-coordinates (str)
+  "This function take a string as parameter and return an int pair or call
+  connection-error if the parameters are bad"
+  (if (/= (count #\Space str :test #'equalp) 1)
+    (connection-error))
+  (let ((spc (position #\Space str :test #'equalp)))
+    (return (mapcar (lambda (x) (handler-case (parse-integer x)
+                                  (error (c) (connection-error) nil)))
+                    (list (subseq str (+ 1 spc)) (subseq str 0 spc))
+                    ))
+    )
+  )
+
 ;Starter client
-(defun create-client (port)
-  "Basic client"
-  (let ((socket (usocket:socket-connect "127.0.0.1" port :element-type 'character)))
-    (unwind-protect 
+(defun create-client (port hostname team)
+  "This function create a client waiting for a 'BIENVENUE\n' input
+  before sending his team name, and call itself in another thread if the number
+  of client send by the server is not null"
+  (let ((socket (handler-case (usocket:socket-connect hostname port :element-type 'character)
+                  (error (c) (connection-error) nil))))
+    (unwind-protect ;permet d'executer la derniere instruction meme si la premiere instruction fait sortir du programme
       (progn
+        ;Wait for BIENVENUE
         (usocket:wait-for-input socket)
-        (format t "~A~%" (read-line (usocket:socket-stream socket))))
+        (if (string= (read-line (usocket:socket-stream socket)) "BIENVENUE")
+          (or (format (usocket:socket-stream socket) "~a~%" team) ;need a macro pour faire ca proprement
+              (force-output (usocket:socket-stream socket))
+              )
+          (connection-error))
+        ; Get number of new connections
+        (usocket:wait-for-input socket)
+        (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
+                 (error (c) (connection-error) nil)) 0)
+          (sb-thread:make-thread (create-client port hostname team))
+          )
+        ; Get map coordonates
+        (usocket:wait-for-input socket)
+        (get-coordinates (read-line (usocket:socket-stream socket))
+                         )
+        )
       (usocket:socket-close socket))))
 
 ; Usage function
@@ -29,24 +69,22 @@
           -p port
           -h hosting machine. Localhost by default~%"
           )
+  (sb-ext:exit)
   )
 
 ; Entry point: the program start here
-(let (lst team port hostname)
-  (setq lst (cdr *posix-argv*))
-  (setq hostname "localhost")
+(let ((lst (cdr *posix-argv*)) (hostname "localhost") team port)
   (loop for a in lst by #'cddr
         for b in (cdr lst) by #'cddr when (and (evenp (length lst)) (>= 6 (length lst))) ; check if args are even and < 6
         do (cond
              ((string= "-n" a) (setq team b))
              ((string= "-p" a) (setq port (handler-case (parse-integer b)
-                                            (error (c) (or (usage) (sb-ext:exit))
-                                                   nil)))) ; Usage sent if port isn't an int
+                                            (error (c) (usage) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
              ((string= "-h" a) (setq hostname b))
-             (t (or (usage) (sb-ext:exit)))
+             (t (usage))
              ))
   ;Check if port or team wasnt given
   (or (not (or (null team) (null port)))
-      (usage) (sb-ext:exit))
+      (usage))
 
-  (format t "team: ~a; port ~d; host ~a ~%" team port hostname))
+  (create-client port hostname team))
