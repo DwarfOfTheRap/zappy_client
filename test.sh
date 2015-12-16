@@ -1,5 +1,5 @@
 #!/bin/bash
-for filename in tests/*.lisp
+for filename in test/*.lisp
 do
     echo -e " ----------------- Executing $filename -----------------\n"
     sbcl --script "$filename"

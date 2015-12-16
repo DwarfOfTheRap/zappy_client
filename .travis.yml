@@ -1,10 +1,16 @@
-language: lisp
+language: common-lisp
 sudo: required
 
 env:
   matrix:
     - LISP=sbcl
 
+branches:
+  - master
+  - release
+
 install:
   - curl -L https://github.com/luismbo/cl-travis/raw/master/install.sh | sh
 
+script:
+  - ./test.sh
