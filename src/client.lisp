@@ -1,4 +1,3 @@
-#!/nfs/zfs-student-2/users/frale-co/.brew/bin/sbcl --script
 
 ;#-quicklisp package position because sbcl --script launch basic sbcl
 (let ((quicklisp-init (merge-pathnames "~/quicklisp/setup.lisp"
@@ -25,10 +24,10 @@
   (if (/= (count #\Space str :test #'equalp) 1)
     (connection-error))
   (let ((spc (position #\Space str :test #'equalp)))
-    (return (mapcar (lambda (x) (handler-case (parse-integer x)
-                                  (error (c) (connection-error) nil)))
-                    (list (subseq str (+ 1 spc)) (subseq str 0 spc))
-                    ))
+    (mapcar (lambda (x) (handler-case (parse-integer x)
+                          (error (c) (connection-error) nil)))
+            (list (subseq str 0 spc) (subseq str (+ 1 spc)))
+            )
     )
   )
 
@@ -73,18 +72,19 @@
   )
 
 ; Entry point: the program start here
-(let ((lst (cdr *posix-argv*)) (hostname "localhost") team port)
-  (loop for a in lst by #'cddr
-        for b in (cdr lst) by #'cddr when (and (evenp (length lst)) (>= 6 (length lst))) ; check if args are even and < 6
-        do (cond
-             ((string= "-n" a) (setq team b))
-             ((string= "-p" a) (setq port (handler-case (parse-integer b)
-                                            (error (c) (usage) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
-             ((string= "-h" a) (setq hostname b))
-             (t (usage))
-             ))
-  ;Check if port or team wasnt given
-  (or (not (or (null team) (null port)))
-      (usage))
-
-  (create-client port hostname team))
+(defun main (lst)
+  (let ((hostname "localhost") team port)
+    (loop for a in lst by #'cddr
+          for b in (cdr lst) by #'cddr when (and (evenp (length lst)) (>= 6 (length lst))) ; check if args are even and < 6
+          do (cond
+               ((string= "-n" a) (setq team b))
+               ((string= "-p" a) (setq port (handler-case (parse-integer b)
+                                              (error (c) (usage) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
+               ((string= "-h" a) (setq hostname b))
+               (t (usage))
+               ))
+    ;Check if port or team wasnt given
+    (or (not (or (null team) (null port)))
+        (usage))
+    (create-client port hostname team))
+  )
