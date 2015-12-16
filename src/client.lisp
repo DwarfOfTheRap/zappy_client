@@ -13,7 +13,7 @@
 ; Connection error
 (defun connection-error ()
   "Print an error message and exit"
-  (format t "Connection error: unable to connect or corrupt servor message~%")
+  (format t "Connection error: unable to connect or corrupt server message~%")
   (sb-ext:exit)
   )
 
@@ -22,10 +22,10 @@
   "This function take a string as parameter and return an int pair or call
   connection-error if the parameters are bad"
   (if (/= (count #\Space str :test #'equalp) 1)
-    (connection-error))
+    (return-from get-coordinates nil))
   (let ((spc (position #\Space str :test #'equalp)))
     (mapcar (lambda (x) (handler-case (parse-integer x)
-                          (error (c) (connection-error) nil)))
+                          (error (c) (return-from get-coordinates nil) nil)))
             (list (subseq str 0 spc) (subseq str (+ 1 spc)))
             )
     )
@@ -68,7 +68,7 @@
           -p port
           -h hosting machine. Localhost by default~%"
           )
-  (sb-ext:exit)
+  t
   )
 
 ; Entry point: the program start here
@@ -79,12 +79,12 @@
           do (cond
                ((string= "-n" a) (setq team b))
                ((string= "-p" a) (setq port (handler-case (parse-integer b)
-                                              (error (c) (usage) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
+                                              (error (c) (and (usage) (return-from main nil)) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
                ((string= "-h" a) (setq hostname b))
-               (t (usage))
+               (t (and (usage) (return-from main nil)))
                ))
     ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
-        (usage))
+        (and (usage) (return-from main nil)))
     (create-client port hostname team))
   )
