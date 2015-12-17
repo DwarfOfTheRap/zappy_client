@@ -10,13 +10,6 @@
                                    :if-exists :supersede)
   (ql:quickload "usocket"))
 
-; Connection error
-(defun connection-error ()
-  "Print an error message and exit"
-  (format t "Connection error: unable to connect or corrupt server message~%")
-  ;(sb-ext:exit)
-  )
-
 ;get coordinate from string
 (defun get-coordinates (str)
   "This function take a string as parameter and return an int pair or call
@@ -37,8 +30,9 @@
   before sending his team name, and call itself in another thread if the number
   of client send by the server is not null"
   (let ((socket (handler-case (usocket:socket-connect hostname port :element-type 'character)
-                  (error (c) (connection-error) (return-from create-client nil)))))
-    (unwind-protect ;permet d'executer la derniere instruction meme si la premiere instruction fait sortir du programme
+                  (error (c) (format t "Socket error: unable to connect to server~%")
+                         (return-from create-client nil)))))
+    (unwind-protect
       (progn
         ;Wait for BIENVENUE
         (usocket:wait-for-input socket)
@@ -46,19 +40,19 @@
           (or (format (usocket:socket-stream socket) "~a~%" team) ;need a macro pour faire ca proprement
               (force-output (usocket:socket-stream socket))
               )
-          (progn (connection-error) (return-from create-client nil)))
+          (progn (format t "Communication error: bad first message~%") (return-from create-client nil)))
         ; Get number of new connections
         (usocket:wait-for-input socket)
         (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                 (error (c) (connection-error) (return-from create-client nil))) 0)
-          (sb-thread:make-thread (create-client port hostname team))
+                 (error (c) (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 0)
+          (sb-thread:make-thread (lambda () (create-client port hostname team)))
           )
         ; Get map coordonates
         (usocket:wait-for-input socket)
         (get-coordinates (read-line (usocket:socket-stream socket))
                          )
-        )
-      (usocket:socket-close socket))))
+        (return-from create-client t))
+        (usocket:socket-close socket))))
 
 ; Usage function
 (defun usage ()
