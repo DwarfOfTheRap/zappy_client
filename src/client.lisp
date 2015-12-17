@@ -1,3 +1,5 @@
+;load file.
+(load "src/commands.lisp")
 
 ;#-quicklisp package position because sbcl --script launch basic sbcl
 (let ((quicklisp-init (merge-pathnames "~/quicklisp/setup.lisp"
@@ -9,13 +11,6 @@
 (with-open-file (*standard-output* "/dev/null" :direction :output
                                    :if-exists :supersede)
   (ql:quickload "usocket"))
-
-; Connection error
-(defun connection-error ()
-  "Print an error message and exit"
-  (format t "Connection error: unable to connect or corrupt server message~%")
-  (sb-ext:exit)
-  )
 
 ;get coordinate from string
 (defun get-coordinates (str)
@@ -37,28 +32,29 @@
   before sending his team name, and call itself in another thread if the number
   of client send by the server is not null"
   (let ((socket (handler-case (usocket:socket-connect hostname port :element-type 'character)
-                  (error (c) (connection-error) nil))))
-    (unwind-protect ;permet d'executer la derniere instruction meme si la premiere instruction fait sortir du programme
+                  (error (c) (format t "Socket error: unable to connect to server~%")
+                         (return-from create-client nil)))))
+    (unwind-protect
       (progn
         ;Wait for BIENVENUE
         (usocket:wait-for-input socket)
         (if (string= (read-line (usocket:socket-stream socket)) "BIENVENUE")
-          (or (format (usocket:socket-stream socket) "~a~%" team) ;need a macro pour faire ca proprement
+          (or (format (usocket:socket-stream socket) "~a~%" team) ;maybe write a macro should this be used a lot
               (force-output (usocket:socket-stream socket))
               )
-          (connection-error))
+          (progn (format t "Communication error: bad first message~%") (return-from create-client nil)))
         ; Get number of new connections
         (usocket:wait-for-input socket)
         (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                 (error (c) (connection-error) nil)) 0)
-          (sb-thread:make-thread (create-client port hostname team))
+                 (error (c) (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 0)
+          (sb-thread:make-thread (lambda () (create-client port hostname team)))
           )
         ; Get map coordonates
         (usocket:wait-for-input socket)
-        (get-coordinates (read-line (usocket:socket-stream socket))
-                         )
-        )
-      (usocket:socket-close socket))))
+        (let ((coord (get-coordinates (read-line (usocket:socket-stream socket)))))
+          )
+        (return-from create-client t))
+        (usocket:socket-close socket))))
 
 ; Usage function
 (defun usage ()
@@ -79,7 +75,7 @@
           do (cond
                ((string= "-n" a) (setq team b))
                ((string= "-p" a) (setq port (handler-case (parse-integer b)
-                                              (error (c) (and (usage) (return-from main nil)) nil)))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
+                                              (error (c) (or (format t "<port> need to be an int~%")(usage)) (return-from main nil))))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
                ((string= "-h" a) (setq hostname b))
                (t (and (usage) (return-from main nil)))
                ))

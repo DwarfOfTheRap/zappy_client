@@ -14,3 +14,6 @@ install:
 
 script:
   - ./test.sh
+
+notifications:
+  slack: dwarfoftherap:K6BqeHPQ6WcvVe7gTOxq9Dlh
