@@ -14,7 +14,7 @@
 (defun connection-error ()
   "Print an error message and exit"
   (format t "Connection error: unable to connect or corrupt server message~%")
-  (sb-ext:exit)
+  ;(sb-ext:exit)
   )
 
 ;get coordinate from string
@@ -37,7 +37,7 @@
   before sending his team name, and call itself in another thread if the number
   of client send by the server is not null"
   (let ((socket (handler-case (usocket:socket-connect hostname port :element-type 'character)
-                  (error (c) (connection-error) nil))))
+                  (error (c) (connection-error) (return-from create-client nil)))))
     (unwind-protect ;permet d'executer la derniere instruction meme si la premiere instruction fait sortir du programme
       (progn
         ;Wait for BIENVENUE
@@ -46,11 +46,11 @@
           (or (format (usocket:socket-stream socket) "~a~%" team) ;need a macro pour faire ca proprement
               (force-output (usocket:socket-stream socket))
               )
-          (connection-error))
+          (progn ((connection-error) (return-from create-client nil)))
         ; Get number of new connections
         (usocket:wait-for-input socket)
         (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                 (error (c) (connection-error) nil)) 0)
+                 (error (c) (connection-error) (return-from create-client nil)) 0)
           (sb-thread:make-thread (create-client port hostname team))
           )
         ; Get map coordonates

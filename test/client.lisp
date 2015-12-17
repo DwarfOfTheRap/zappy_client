@@ -21,6 +21,10 @@
              )
           )
 
+;(define-test create-client-tst
+
+ ; )
+
 (define-test accurate-coord
              (assert-equal (list 2 5) (get-coordinates "2 5"))
              (assert-equal (list 42 5) (get-coordinates "42 5"))

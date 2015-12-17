@@ -3,12 +3,12 @@ error=0
 for filename in test/*.lisp
 do
     echo -e " ----------------- Executing $filename -----------------\n"
-
-    output=`sbcl --script "$filename" | grep "TOTAL" | awk '{print $5}'`
-     echo "[$output]"
-    if [[ $output -gt 0 ]]; then
-        #echo $output
-        error=`expr $error + $output`
+    output=`sbcl --script "$filename" | grep "assertions passed" | awk '{print $5}'`
+    output=`sbcl --script "$filename" | grep "TOTAL"`
+    failed=`echo $output | awk '{print $5}'`
+    exec_error=`echo $output | awk '{print $7}'`
+    if [[ $failed -gt 0 ]] || [[ $exec_error -gt 0 ]]; then
+        error=`expr $error + $failed + $exec_error`
     fi
     echo -e "\n"
     #echo -e "\n ----------------- End $filename tests -----------------\n"
