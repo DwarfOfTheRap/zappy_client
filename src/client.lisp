@@ -46,11 +46,11 @@
           (or (format (usocket:socket-stream socket) "~a~%" team) ;need a macro pour faire ca proprement
               (force-output (usocket:socket-stream socket))
               )
-          (progn ((connection-error) (return-from create-client nil)))
+          (progn (connection-error) (return-from create-client nil)))
         ; Get number of new connections
         (usocket:wait-for-input socket)
         (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                 (error (c) (connection-error) (return-from create-client nil)) 0)
+                 (error (c) (connection-error) (return-from create-client nil))) 0)
           (sb-thread:make-thread (create-client port hostname team))
           )
         ; Get map coordonates

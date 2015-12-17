@@ -10,8 +10,8 @@
              (assert-false (main '("-t" "machin")))
              (assert-false (main '("-n" "machin")))
              (assert-false (main '("-n" "machin" "-y" "truc")))
-             (assert-true (main '("-n" "machin" "-p" "truc")))
-             (assert-true (main '("-n" "machin" "-p")))
+             (assert-false (main '("-n" "machin" "-p" "truc")))
+             (assert-false (main '("-n" "machin" "-p")))
              (assert-false (main '("-n" "machin" "-p" "342ui")))
              (assert-false (main '("-n" "machin" "-h" "localhost")))
              (assert-false (main '("-n" "machin" "-p" "54343" "localhost")))
@@ -21,7 +21,7 @@
              )
           )
 
-;(define-test create-client-tst
+;(define-test create-client-test
 
  ; )
 
@@ -35,7 +35,7 @@
 
 (define-test coordinate-bad-entry
              (assert-false (get-coordinates "2 5 7"))
-             (assert-true (get-coordinates "2ewwqe 5"))
+             (assert-false (get-coordinates "2ewwqe 5"))
              (assert-false (get-coordinates "2 5qwdf"))
              (assert-false (get-coordinates " 2 5"))
              (assert-false (get-coordinates "2 5 "))
