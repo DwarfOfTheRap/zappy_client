@@ -1,5 +1,5 @@
 ;load file.
-(load "src/commands.lisp")
+(load "src/player.lisp")
 
 ;#-quicklisp package position because sbcl --script launch basic sbcl
 (let ((quicklisp-init (merge-pathnames "~/quicklisp/setup.lisp"
@@ -52,6 +52,13 @@
         ; Get map coordonates
         (usocket:wait-for-input socket)
         (let ((coord (get-coordinates (read-line (usocket:socket-stream socket)))))
+          (if (not coord)
+            (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
+            )
+          (or (format (usocket:socket-stream socket) "~a~%" team)
+              (force-output (usocket:socket-stream socket))
+              )
+          (game-loop '(port hostname team) socket coord)
           )
         (return-from create-client t))
         (usocket:socket-close socket))))
