@@ -1,6 +1,3 @@
-;load file.
-(load "src/player.lisp")
-
 ;#-quicklisp package position because sbcl --script launch basic sbcl
 (let ((quicklisp-init (merge-pathnames "~/quicklisp/setup.lisp"
                                        (user-homedir-pathname))))
@@ -11,6 +8,9 @@
 (with-open-file (*standard-output* "/dev/null" :direction :output
                                    :if-exists :supersede)
   (ql:quickload "usocket"))
+
+;load file.
+;(load "src/player.lisp")
 
 ;get coordinate from string
 (defun get-coordinates (str)
@@ -58,7 +58,7 @@
           (or (format (usocket:socket-stream socket) "~a~%" team)
               (force-output (usocket:socket-stream socket))
               )
-          (game-loop '(port hostname team) socket coord)
+          ;(game-loop '(port hostname team) socket coord)
           )
         (return-from create-client t))
         (usocket:socket-close socket))))
