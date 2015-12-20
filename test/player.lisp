@@ -28,6 +28,18 @@
   (assert-equal
     '("sibur phiras" "" "nourriture nourriture deraumere" "sibur thystame")
     (get-vision "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}"))
+  (assert-false
+    (get-vision "{ sibur phiras, , nourriture nourriture deraumere, sibur thystame}"))
+  (assert-false
+    (get-vision "{sibur phiras, , nourriture  nourriture deraumere, sibur thystame}"))
+  (assert-false
+    (get-vision "{sibur phiras,  , nourriture nourriture deraumere, sibur thystame}"))
+  (assert-false
+    (get-vision "{sibur phiras, , nourriture nourriture deramere, sibur thystame}"))
+  (assert-false
+    (get-vision "{sibur phiras, , nourriture nourriture deraumere, sibur thystame }"))
+  (assert-false
+    (get-vision "{sibur phis, , nourriture nourriture deraumere, sibur thystame}"))
   )
 
 (define-test
