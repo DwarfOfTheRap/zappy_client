@@ -2,26 +2,28 @@
 (defvar *vision-regex* "^\{(|(nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))*| )(,(( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))+| ))+\}$")
 (defvar *inventory-regex*  "^\{nourriture \\d+, linemate \\d+, deraumere \\d+, sibur \\d+, mendiane \\d+, phiras \\d+, thystame \\d+\}$")
 (defvar *broadcast-regex* "^message [1-9], .*$")
-(defvar *push-regex* "^deplacement \\d$") ; may need further tsting for \n message
-
+(defvar *push-regex* "^deplacement \\d$")
+; Level up needs
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
 
-                                        ; May be avoided with better conception or unknown function: need further research
+
 (defun replace-list (olist nlist)
   "function that update an old list with a new list"
   (setf (first olist) (first nlist))
   (setf (cdr olist) (cdr nlist))
   )
 
+;will be revamped in experimental
 (defun check-inventory (inventory level)
+  "function that check wich object the droid will be looking for"
   (cond
-   ((< (second (car inventory)) 4) "nourriture")
-   ((< (second (nth 1 inventory)) (car (nth (- level 1) *stone-per-level*))) "linemate")
-   ((< (second (nth 2 inventory)) (nth 1 (nth (- level 1) *stone-per-level*))) "deraumere")
-   ((< (second (nth 3 inventory)) (nth 2 (nth (- level 1) *stone-per-level*))) "sibur")
-   ((< (second (nth 4 inventory)) (nth 3 (nth (- level 1) *stone-per-level*))) "mendiane")
-   ((< (second (nth 5 inventory)) (nth 4 (nth (- level 1) *stone-per-level*))) "phiras")
-   ((< (second (nth 6 inventory)) (nth 5 (nth (- level 1) *stone-per-level*))) "thystame")
+   ((< (second (car inventory)) 4) '|nourriture|)
+   ((< (second (nth 1 inventory)) (car (nth (- level 1) *stone-per-level*))) '|linemate|)
+   ((< (second (nth 2 inventory)) (nth 1 (nth (- level 1) *stone-per-level*))) '|deraumere|)
+   ((< (second (nth 3 inventory)) (nth 2 (nth (- level 1) *stone-per-level*))) '|sibur|)
+   ((< (second (nth 4 inventory)) (nth 3 (nth (- level 1) *stone-per-level*))) '|mendiane|)
+   ((< (second (nth 5 inventory)) (nth 4 (nth (- level 1) *stone-per-level*))) '|phiras|)
+   ((< (second (nth 6 inventory)) (nth 5 (nth (- level 1) *stone-per-level*))) '|thystame|)
    (t nil)
    )
   )
@@ -31,8 +33,7 @@
   (let ((case-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
     (loop for x in case-list
           for y = (cl-ppcre:split "\\s+" x)
-          do (setf (second y) (parse-integer (second y)))
-          collect y)))
+          collect (cons (intern (first y)) (parse-integer (second y))) )))
 
 (defun get-broadcast (str)
   (list (parse-integer (subseq str 8 9)) (subseq str 11)))
