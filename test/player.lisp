@@ -72,25 +72,25 @@
   (let (x)
     (setq x '(0))
     (get-response "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}" x nil nil nil)
-    (assert-equal '("linemate sibur" "phiras phiras" "deraumere" "sibur sibur sibur thystame") x)
+    (assert-equal '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|)) x)
     (get-response "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '("sibur" "nourriture sibur phiras phiras" "nourriture nourriture deraumere" "sibur thystame") x)
+    (assert-equal '((0 |sibur|) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
     (get-response "{, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '("" "nourriture sibur phiras phiras" "nourriture nourriture deraumere" "sibur thystame") x)
+    (assert-equal '((0) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
     (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '("sibur phiras" "" "nourriture nourriture deraumere" "sibur thystame") x)
+    (assert-equal '((0 |sibur| |phiras|) (1) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
     )
   (assert-equal
-   '("linemate sibur" "phiras phiras" "deraumere" "sibur sibur sibur thystame")
+   '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))
    (get-vision "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}"))
   (assert-equal
-   '("sibur" "nourriture sibur phiras phiras" "nourriture nourriture deraumere" "sibur thystame")
+   '((0 |sibur|) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
    (get-vision "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}"))
   (assert-equal
-   '("" "nourriture sibur phiras phiras" "nourriture nourriture deraumere" "sibur thystame")
+   '((0) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
    (get-vision "{, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}"))
   (assert-equal
-   '("sibur phiras" "" "nourriture nourriture deraumere" "sibur thystame")
+   '((0 |sibur| |phiras|) (1) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
    (get-vision "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}"))
   )
 
@@ -135,5 +135,6 @@
   (assert-equal '|phiras| (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 1)(|thystame| 1)) 7))
   (assert-equal '|thystame| (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
  )
+
 
 (run-tests)

@@ -5,7 +5,7 @@
 (defvar *push-regex* "^deplacement \\d$")
 ; Level up needs
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
-
+(defvar *symbol-list* '(|nourriture| |linemate| |deraumere| |sibur| |mendiane| |phiras| |thystame|))
 
 (defun replace-list (olist nlist)
   "function that update an old list with a new list"
@@ -16,16 +16,18 @@
 ;will be revamped in experimental
 (defun check-inventory (inventory level)
   "function that check wich object the droid will be looking for"
-  (cond
-   ((< (second (car inventory)) 4) '|nourriture|)
-   ((< (second (nth 1 inventory)) (car (nth (- level 1) *stone-per-level*))) '|linemate|)
-   ((< (second (nth 2 inventory)) (nth 1 (nth (- level 1) *stone-per-level*))) '|deraumere|)
-   ((< (second (nth 3 inventory)) (nth 2 (nth (- level 1) *stone-per-level*))) '|sibur|)
-   ((< (second (nth 4 inventory)) (nth 3 (nth (- level 1) *stone-per-level*))) '|mendiane|)
-   ((< (second (nth 5 inventory)) (nth 4 (nth (- level 1) *stone-per-level*))) '|phiras|)
-   ((< (second (nth 6 inventory)) (nth 5 (nth (- level 1) *stone-per-level*))) '|thystame|)
-   (t nil)
-   )
+  (if (< (second (car inventory)) 4) return-from check-inventory '|nourriture|)
+  (loop repeat )
+  ;(cond
+  ; ((< (second (car inventory)) 4) '|nourriture|)
+  ; ((< (second (nth 1 inventory)) (car (nth (- level 1) *stone-per-level*))) '|linemate|)
+  ; ((< (second (nth 2 inventory)) (nth 1 (nth (- level 1) *stone-per-level*))) '|deraumere|)
+  ; ((< (second (nth 3 inventory)) (nth 2 (nth (- level 1) *stone-per-level*))) '|sibur|)
+  ; ((< (second (nth 4 inventory)) (nth 3 (nth (- level 1) *stone-per-level*))) '|mendiane|)
+  ; ((< (second (nth 5 inventory)) (nth 4 (nth (- level 1) *stone-per-level*))) '|phiras|)
+  ; ((< (second (nth 6 inventory)) (nth 5 (nth (- level 1) *stone-per-level*))) '|thystame|)
+  ; (t nil)
+  ; )
   )
 
 (defun get-inventory (str)
@@ -38,10 +40,15 @@
 (defun get-broadcast (str)
   (list (parse-integer (subseq str 8 9)) (subseq str 11)))
 
+; upgrade: set list in a way that closest tiles are first in list
 (defun get-vision (str)
   "Take the vision string response and convert it into a list o strings"
-  (let ((case-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
-    (loop for x in case-list collect x)))
+  (let ((tiles-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
+    (loop for tiles in tiles-list
+          for tile-num = 0 then (+ tile-num 1) ;maybe a better calculus to go the closest tile
+          for object-list = (cl-ppcre:split "\\s+" tiles)
+          collect (cons tile-num (loop for object in object-list
+                                       collect (intern object))))))
 
 (defun get-response (str vision inventory resp msg)
   (cond
@@ -59,7 +66,7 @@
   t)
 
 (defun base-inv ()
-  '(("nourriture" 10)("linemate" 0)("deraumere" 0)("sibur" 0)("mendiane" 0)("phiras" 0)("thystame" 0)))
+  '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
 
 
 
