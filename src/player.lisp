@@ -16,19 +16,10 @@
 ;will be revamped in experimental
 (defun check-inventory (inventory level)
   "function that check wich object the droid will be looking for"
-  (if (< (second (car inventory)) 4) return-from check-inventory '|nourriture|)
-  (loop repeat )
-  ;(cond
-  ; ((< (second (car inventory)) 4) '|nourriture|)
-  ; ((< (second (nth 1 inventory)) (car (nth (- level 1) *stone-per-level*))) '|linemate|)
-  ; ((< (second (nth 2 inventory)) (nth 1 (nth (- level 1) *stone-per-level*))) '|deraumere|)
-  ; ((< (second (nth 3 inventory)) (nth 2 (nth (- level 1) *stone-per-level*))) '|sibur|)
-  ; ((< (second (nth 4 inventory)) (nth 3 (nth (- level 1) *stone-per-level*))) '|mendiane|)
-  ; ((< (second (nth 5 inventory)) (nth 4 (nth (- level 1) *stone-per-level*))) '|phiras|)
-  ; ((< (second (nth 6 inventory)) (nth 5 (nth (- level 1) *stone-per-level*))) '|thystame|)
-  ; (t nil)
-  ; )
-  )
+  (if (< (second (car inventory)) 4) (return-from check-inventory '(|nourriture|)))
+  (loop for i from 1 to 6
+        when (< (second (nth i inventory)) (nth (- i 1) (nth (- level 1) *stone-per-level*)))
+        collect (nth i *symbol-list*)))
 
 (defun get-inventory (str)
   "Take the inventory string response and convert it into a list of list"
