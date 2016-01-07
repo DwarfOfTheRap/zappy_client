@@ -13,7 +13,14 @@
   (setf (cdr olist) (cdr nlist))
   )
 
-;will be revamped in experimental
+(defun search-in-vision (list vision)
+  "for each item in list, search in vision the corresponding key and return the pair (tile . item) "
+  (loop for item in list
+        for 
+        collect ;(rassoc 1 vision :key #'(lambda x (find item)))
+        )
+)
+
 (defun check-inventory (inventory level)
   "function that check wich object the droid will be looking for"
   (if (< (second (car inventory)) 4) (return-from check-inventory '(|nourriture|)))
