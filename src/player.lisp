@@ -16,10 +16,9 @@
 (defun search-in-vision (list vision)
   "for each item in list, search in vision the corresponding key and return the pair (tile . item) "
   (loop for item in list
-        for 
-        collect ;(rassoc 1 vision :key #'(lambda x (find item)))
-        )
-)
+        collect (cons item (loop for sub in vision
+              if (member item sub)
+              minimize (car sub)))))
 
 (defun check-inventory (inventory level)
   "function that check wich object the droid will be looking for"

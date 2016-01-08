@@ -136,8 +136,6 @@
   (assert-equal '(|thystame|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
  )
 
-(print (search-in-vision '(|linemate| |sibur| |phiras|) '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))))
+(print (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))))
 
 ;(run-tests)
-
-'((1 . (3 . 5)) (2 5))
