@@ -13,6 +13,10 @@
   (setf (cdr olist) (cdr nlist))
   )
 
+(defun make-path (search)
+  t
+  )
+
 (defun search-in-vision (list vision)
   "for each item in list, search in vision the corresponding key and return the pair (tile . item) "
   (loop for item in list
@@ -20,12 +24,18 @@
               if (member item sub)
               minimize (car sub)))))
 
-(defun check-inventory (inventory level)
+(defun seek-stone (inventory level)
   "function that check wich object the droid will be looking for"
-  (if (< (second (car inventory)) 4) (return-from check-inventory '(|nourriture|)))
   (loop for i from 1 to 6
         when (< (second (nth i inventory)) (nth (- i 1) (nth (- level 1) *stone-per-level*)))
         collect (nth i *symbol-list*)))
+
+(defun check-inventory (inventory level)
+  "look if food is needed and seek stones otherwise"
+  (if (< (second (car inventory)) 4) (return-from check-inventory '(|nourriture|)))
+  (if (< (second (car inventory)) 10) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
+  (seek-stone inventory level)
+  )
 
 (defun get-inventory (str)
   "Take the inventory string response and convert it into a list of list"

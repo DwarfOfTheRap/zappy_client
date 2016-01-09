@@ -1,3 +1,5 @@
+(defvar *vision01* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|)))
+
 (load "lib/lisp-unit.lisp")
 (use-package :lisp-unit)
 
@@ -122,20 +124,23 @@
 
 (define-test inventory-checking-suite
   (assert-equal '(|nourriture|) (check-inventory '((|nourriture| 3) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
-  (assert-false (check-inventory '((|nourriture| 5) (|linemate| 1) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
-  (assert-equal '(|linemate|) (check-inventory '((|nourriture| 5) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
-  (assert-equal '(|linemate| |sibur| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 1) (|deraumere| 0)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 3))
-  (assert-equal '(|deraumere|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 0)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
-  (assert-equal '(|deraumere| |mendiane|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 1)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 5))
-  (assert-equal '(|sibur|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
-  (assert-equal '(|sibur| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 1)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 4))
-  (assert-equal '(|mendiane|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 2)(|phiras| 0)(|thystame| 1)) 5))
-  (assert-equal '(|mendiane| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 7))
-  (assert-equal '(|phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 0)(|thystame| 1)) 3))
-  (assert-equal '(|phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 1)(|thystame| 1)) 7))
-  (assert-equal '(|thystame|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
+  (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| 5) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
+  (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 1) (|deraumere| 0)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 3))
+  (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 0)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
+  (assert-equal '(|deraumere| |mendiane|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 1)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 5))
+  (assert-equal '(|sibur|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 2)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
+  (assert-equal '(|sibur| |phiras|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 2)(|sibur| 1)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 4))
+  (assert-equal '(|nourriture| |mendiane|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 2)(|phiras| 0)(|thystame| 1)) 5))
+  (assert-equal '(|nourriture| |mendiane| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 7))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 0)(|thystame| 1)) 3))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 1)(|thystame| 1)) 7))
+  (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
  )
 
-(print (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))))
+;(print (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))))
 
-;(run-tests)
+(define-test search-test
+  (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
+  )
+
+(run-tests)
