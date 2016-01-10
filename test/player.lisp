@@ -143,4 +143,23 @@
   (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
   )
 
-(run-tests)
+(defun organize-vision (vision)
+  (loop for item in vision
+        for half = 0
+        for i = 1 then (+ 1 i)
+        collect item into lst
+        when (member i '(1 4 9 16 25))
+        append lst into ret
+        and do (print i)
+        and do (print half)
+        finally (return ret)
+        )
+  )
+
+(defun organize-line (vision half)
+  (loop for i from 0 below half
+        nconc (list (nth i vision) (nth (- (* half 2) i) vision)) into lst
+        finally (return (cons (nth half vision) lst))))
+
+(print (organize-vision '(0 1 2 3)))
+;(run-tests)
