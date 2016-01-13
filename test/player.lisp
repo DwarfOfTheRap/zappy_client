@@ -74,25 +74,25 @@
   (let (x)
     (setq x '(0))
     (get-response "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}" x nil nil nil)
-    (assert-equal '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|)) x)
+    (assert-equal '((0 |linemate| |sibur|) (1 |deraumere|) (2 |sibur| |sibur| |sibur| |thystame|) (3 |phiras| |phiras|)) x)
     (get-response "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '((0 |sibur|) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
+    (assert-equal '((0 |sibur|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|)) x)
     (get-response "{, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '((0) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
+    (assert-equal '((0) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|)) x)
     (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-    (assert-equal '((0 |sibur| |phiras|) (1) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|)) x)
+    (assert-equal '((0 |sibur| |phiras|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3)) x)
     )
   (assert-equal
-   '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))
+   '((0 |linemate| |sibur|) (1 |deraumere|) (2 |sibur| |sibur| |sibur| |thystame|) (3 |phiras| |phiras|))
    (get-vision "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}"))
   (assert-equal
-   '((0 |sibur|) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
+   '((0 |sibur|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|))
    (get-vision "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}"))
   (assert-equal
-   '((0) (1 |nourriture| |sibur| |phiras| |phiras|) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
+   '((0) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|))
    (get-vision "{, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}"))
   (assert-equal
-   '((0 |sibur| |phiras|) (1) (2 |nourriture| |nourriture| |deraumere|) (3 |sibur| |thystame|))
+   '((0 |sibur| |phiras|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3))
    (get-vision "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}"))
   )
 
@@ -135,31 +135,11 @@
   (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 0)(|thystame| 1)) 3))
   (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 1)(|thystame| 1)) 7))
   (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
- )
+  )
 
-;(print (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|))))
 
 (define-test search-test
   (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
   )
 
-(defun organize-vision (vision)
-  (loop for item in vision
-        for half = 0
-        for i = 1 then (+ 1 i)
-        collect item into lst
-        when (member i '(1 4 9 16 25))
-        append lst into ret
-        and do (print i)
-        and do (print half)
-        finally (return ret)
-        )
-  )
-
-(defun organize-line (vision half)
-  (loop for i from 0 below half
-        nconc (list (nth i vision) (nth (- (* half 2) i) vision)) into lst
-        finally (return (cons (nth half vision) lst))))
-
-(print (organize-vision '(0 1 2 3)))
-;(run-tests)
+(run-tests)
