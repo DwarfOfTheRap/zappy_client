@@ -13,16 +13,29 @@
   (setf (cdr olist) (cdr nlist))
   )
 
-(defun make-path (search)
-  t
-  )
+(defun make-path-2 (tile element)
+  (if (= 0 tile)
+    (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element)))) ; composer la string plus tard
+    (append '("avance") (make-path-2 (- tile 2) element))))
+
+(defun make-path (element)
+  "create a list of command"
+  (loop for i from 1 to 7
+        for j = 0 then (+ 1 j)
+        if (<= (* i i) (cdr element))
+        append '("avance") into ret
+        else
+        do (let ((tile (- (cdr element) (* j j))))
+             (if (oddp tile)
+               (return-from make-path (append ret '("gauche") (make-path-2 (+ 1 tile) (car element))))
+               (return-from make-path (append ret '("droite") (make-path-2 tile (car element))))))))
 
 (defun search-in-vision (list vision)
   "for each item in list, search in vision the corresponding key and return the pair (tile . item) "
   (loop for item in list
         collect (cons item (loop for sub in vision
-              if (member item sub)
-              minimize (car sub)))))
+                                 if (member item sub)
+                                 minimize (car sub)))))
 
 (defun seek-stone (inventory level)
   "function that check wich object the droid will be looking for"
@@ -42,7 +55,7 @@
   (let ((case-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
     (loop for x in case-list
           for y = (cl-ppcre:split "\\s+" x)
-          collect (cons (intern (first y)) (parse-integer (second y))) )))
+          collect (cons (intern (first y)) (parse-integer (second y))))))
 
 (defun get-broadcast (str)
   (list (parse-integer (subseq str 8 9)) (subseq str 11)))
@@ -76,17 +89,17 @@
 
 (defun get-response (str vision inventory resp msg)
   (cond
-   ((cl-ppcre:scan "^ok$" str)
-    (setf (first resp) 0))
-   ((cl-ppcre:scan "^ko$" str)
-    (setf (first resp) 1))
-   ((cl-ppcre:scan *inventory-regex* str)
-    (replace-list inventory (get-inventory str)))
-   ((cl-ppcre:scan *vision-regex* str)
-    (replace-list vision (get-vision str)))
-   ((cl-ppcre:scan *broadcast-regex* str)
-    (replace-list msg (get-broadcast str)))
-   (t (progn(format t "Unexpected message: ~a~%" str) (return-from get-response nil))))
+    ((cl-ppcre:scan "^ok$" str)
+     (setf (first resp) 0))
+    ((cl-ppcre:scan "^ko$" str)
+     (setf (first resp) 1))
+    ((cl-ppcre:scan *inventory-regex* str)
+     (replace-list inventory (get-inventory str)))
+    ((cl-ppcre:scan *vision-regex* str)
+     (replace-list vision (get-vision str)))
+    ((cl-ppcre:scan *broadcast-regex* str)
+     (replace-list msg (get-broadcast str)))
+    (t (progn(format t "Unexpected message: ~a~%" str) (return-from get-response nil))))
   t)
 
 (defun base-inv ()
@@ -94,16 +107,16 @@
 
 
 
-                                        ;(defun game-loop (newcli socket coord)
-                                        ;  "loop with a throttle until it catch a response from server"
-                                        ;  (let ((vision '(0)) (inventory base-inv) (command '(0)) (objective '(0))) ;should set inventory with 10f
-                                        ;    (loop
-                                        ;      (if (listen (usocket:socket-stream socket))
-                                        ;        ;(progn
-                                        ;        (get-response (read-line (usocket:socket-stream socket)) vision inventory resp msg)
-                                        ;        ; )
-                                        ;        )
-                                        ;      (sleep 0.001)
-                                        ;      )
-                                        ;    )
-                                        ;  )
+;(defun game-loop (newcli socket coord)
+;  "loop with a throttle until it catch a response from server"
+;  (let ((vision '(0)) (inventory base-inv) (command '(0)) (objective '(0))) ;should set inventory with 10f
+;    (loop
+;      (if (listen (usocket:socket-stream socket))
+;        ;(progn
+;        (get-response (read-line (usocket:socket-stream socket)) vision inventory resp msg)
+;        ; )
+;        )
+;      (sleep 0.001)
+;      )
+;    )
+;  )

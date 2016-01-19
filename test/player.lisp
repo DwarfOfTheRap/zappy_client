@@ -142,4 +142,5 @@
   (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
   )
 
-(run-tests)
+(print (make-path '(|linemate| . 13)))
+;(run-tests)
