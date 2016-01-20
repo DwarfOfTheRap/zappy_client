@@ -1,6 +1,10 @@
 (defvar *vision01* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |sibur| |sibur| |sibur| |thystame|)))
+(defvar *vision02* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|)))
+(defvar *vision03* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |nourriture|) (8)))
 
-(load "lib/lisp-unit.lisp")
+(defvar *inventory01* '((|nourriture| 3) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)))
+
+  (load "lib/lisp-unit.lisp")
 (use-package :lisp-unit)
 
                                         ;#-quicklisp package position because sbcl --script launch basic sbcl
@@ -123,7 +127,7 @@
   )
 
 (define-test inventory-checking-suite
-  (assert-equal '(|nourriture|) (check-inventory '((|nourriture| 3) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
+  (assert-equal '(|nourriture|) (check-inventory *inventory01* 1))
   (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| 5) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
   (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 1) (|deraumere| 0)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 3))
   (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 0)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
@@ -140,7 +144,16 @@
 
 (define-test search-test
   (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
+  (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) ) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision02*))
+  (assert-equal '() (search-in-vision '(|thystame|) *vision02*))
   )
 
-(print (make-path '(|linemate| . 13)))
-;(run-tests)
+(define-test pathing-test
+  (assert-equal '("avance" "avance" "avance" "droite" "avance" "avance" "prend linemate") (make-path '(|linemate| . 13)))
+  (assert-equal '("prend linemate") (make-path '(|linemate| . 0)))
+  (assert-equal '("avance" "prend linemate") (make-path '(|linemate| . 1)))
+  )
+
+                                        ;inventaire level vision -> search
+(print (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision03*))))
+(run-tests)

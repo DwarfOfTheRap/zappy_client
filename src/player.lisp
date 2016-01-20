@@ -15,27 +15,31 @@
 
 (defun make-path-2 (tile element)
   (if (= 0 tile)
-    (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element)))) ; composer la string plus tard
+    (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element))))
     (append '("avance") (make-path-2 (- tile 2) element))))
 
 (defun make-path (element)
-  "create a list of command"
+  "create a list of command: take @pair and return @string list"
   (loop for i from 1 to 7
         for j = 0 then (+ 1 j)
         if (<= (* i i) (cdr element))
         append '("avance") into ret
         else
         do (let ((tile (- (cdr element) (* j j))))
+             (if (= 0 tile)
+                 (return-from make-path (append ret (list (concatenate 'string "prend " (symbol-name (car element)))))))
              (if (oddp tile)
                (return-from make-path (append ret '("gauche") (make-path-2 (+ 1 tile) (car element))))
                (return-from make-path (append ret '("droite") (make-path-2 tile (car element))))))))
 
 (defun search-in-vision (list vision)
-  "for each item in list, search in vision the corresponding key and return the pair (tile . item) "
+  "for each item in list, search in vision the corresponding key and return the pair (item . tile) "
   (loop for item in list
-        collect (cons item (loop for sub in vision
-                                 if (member item sub)
-                                 minimize (car sub)))))
+        for x = (loop for sub in vision
+                      when (member item sub)
+                      return (car sub))
+        if x
+        collect (cons item x)))
 
 (defun seek-stone (inventory level)
   "function that check wich object the droid will be looking for"
