@@ -7,6 +7,8 @@
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
 (defvar *symbol-list* '(|nourriture| |linemate| |deraumere| |sibur| |mendiane| |phiras| |thystame|))
 
+(load "src/broadcast.lisp")
+
 (defun replace-list (olist nlist)
   "function that update an old list with a new list"
   (setf (first olist) (first nlist))
