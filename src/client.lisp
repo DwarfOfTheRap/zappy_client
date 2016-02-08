@@ -7,7 +7,8 @@
                                         ; load tcp/sockets library quietly
 (with-open-file (*standard-output* "/dev/null" :direction :output
                                                :if-exists :supersede)
-  (ql:quickload "usocket"))
+  (ql:quickload "usocket")
+  (ql:quickload "cl-ppcre"))
 
                                         ;load file.
 (load "src/player.lisp")
@@ -20,7 +21,7 @@
       (return-from get-coordinates nil))
   (let ((spc (position #\Space str :test #'equalp)))
     (mapcar (lambda (x) (handler-case (parse-integer x)
-                          (error (c) (return-from get-coordinates nil) nil)))
+                          (error () (return-from get-coordinates nil) nil)))
             (list (subseq str 0 spc) (subseq str (+ 1 spc)))
             )
     )
@@ -32,7 +33,7 @@
   before sending his team name, and call itself in another thread if the number
   of client send by the server is not null"
   (let ((socket (handler-case (usocket:socket-connect hostname port :element-type 'character)
-                  (error (c) (format t "Socket error: unable to connect to server~%")
+                  (error () (format t "Socket error: unable to connect to server~%")
                     (return-from create-client nil)))))
     (unwind-protect
          (progn
@@ -46,7 +47,7 @@
                                         ; Get number of new connections
            (usocket:wait-for-input socket)
            (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                    (error (c) (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 0)
+                    (error () (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 0)
                (sb-thread:make-thread (lambda () (create-client port hostname team)))
                )
                                         ; Get map coordonates
@@ -82,7 +83,7 @@
           do (cond
                ((string= "-n" a) (setq team b))
                ((string= "-p" a) (setq port (handler-case (parse-integer b)
-                                              (error (c) (or (format t "<port> need to be an int~%")(usage)) (return-from main nil))))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
+                                              (error () (or (format t "<port> need to be an int~%")(usage)) (return-from main nil))))) ; Usage sent if port isn't an int : maybe sending an error: bad parameter could be better?
                ((string= "-h" a) (setq hostname b))
                (t (and (usage) (return-from main nil)))
                ))

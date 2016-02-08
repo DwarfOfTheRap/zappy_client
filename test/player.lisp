@@ -18,6 +18,7 @@
                                         ; load tcp/sockets library quietly
 (with-open-file (*standard-output* "/dev/null" :direction :output
                                                :if-exists :supersede)
+  (ql:quickload "usocket")
   (ql:quickload "cl-ppcre"))
 
 (load "src/player.lisp")
@@ -120,11 +121,11 @@
     broadcast-test-suite
     (let ((x '(4)))
       (get-response "message 5, 23456cz" nil nil nil x)
-      (assert-equal '(5 "23456cz") x)
+      (assert-equal '(5 . "23456cz") x)
       (get-response "message 2, 23456cz" nil nil nil x)
-      (assert-equal '(2 "23456cz") x)
+      (assert-equal '(2 . "23456cz") x)
       (get-response "message 5, 12345!@#$%QWERqwer" nil nil nil x)
-      (assert-equal '(5 "12345!@#$%QWERqwer") x)
+      (assert-equal '(5 . "12345!@#$%QWERqwer") x)
       )
   )
 
@@ -163,3 +164,4 @@
   )
 
 (run-tests)
+(exit)

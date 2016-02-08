@@ -16,6 +16,7 @@
   )
 
 (defun make-path-2 (tile element)
+  "recursive function. Advance to the element then take it"
   (if (= 0 tile)
       (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element))))
       (append '("avance") (make-path-2 (- tile 2) element))))
@@ -67,8 +68,8 @@
           collect (cons (intern (first y)) (parse-integer (second y))))))
 
 (defun get-broadcast (str)
-  (list (parse-integer (subseq str 8 9)) (subseq str 11)))
-
+  "Read the broadcast response and return a tuple (direction . message): (int. str)"
+  (cons (parse-integer (subseq str 8 9)) (subseq str 11)))
 
 (defun organize-line (vision half)
   "organize vision lines putting the closest tiles first"
@@ -112,6 +113,7 @@
   t)
 
 (defun base-inv ()
+  "return starting inventory"
   '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
 
 
