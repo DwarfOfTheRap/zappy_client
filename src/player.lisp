@@ -68,7 +68,7 @@
           collect (cons (intern (first y)) (parse-integer (second y))))))
 
 (defun get-broadcast (str)
-  "Read the broadcast response and return a tuple (direction . message): (int. str)"
+  "Read the broadcast response and return a tuple (direction . message): (int . str)"
   (cons (parse-integer (subseq str 8 9)) (subseq str 11)))
 
 (defun organize-line (vision half)
