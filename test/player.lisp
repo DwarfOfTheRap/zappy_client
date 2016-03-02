@@ -23,75 +23,55 @@
 
 (load "src/player.lisp")
 
-(define-test
-    response-test-suite
-    (with-open-file
-        (*standard-output* "/dev/null" :direction :output :if-exists :supersede)
-      (assert-false
-       (get-response "{ sibur phiras, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-      (assert-false
-       (get-response "{sibur phiras, , nourriture  nourriture deraumere, sibur thystame}" nil nil nil nil))
-      (assert-false
-       (get-response "{sibur phiras,  , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-      (assert-false
-       (get-response "{sibur phiras, , nourriture nourriture deramere, sibur thystame}" nil nil nil nil))
-      (assert-false
-       (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame }" nil nil nil nil))
-      (assert-false
-       (get-response "{sibur phis, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-      (assert-false
-       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame  4}" nil nil nil nil))
-      (assert-false
-       (get-response "{nourriture 10 , linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}" nil nil nil nil))
-      (assert-false
-       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras f, thystame 4}" nil nil nil nil))
-      (assert-false
-       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0 , phiras 0, thystame 4}" nil nil nil nil))
-      (assert-false
-       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4 }" nil nil nil nil))
-      (assert-false
-       (get-response "message 12, rtghjdf" nil nil nil nil))
-      (assert-false
-       (get-response " message 2, rtghjdf" nil nil nil nil))
-      (assert-false
-       (get-response "message 2 , rtghjdf" nil nil nil nil))
-      (assert-false
-       (get-response "messge 2, rtghjdf" nil nil nil nil))
-      (assert-false
-       (get-response " ok" nil nil nil nil))
-      (assert-false
-       (get-response " ko" nil nil nil nil))
-      (assert-false
-       (get-response "ok " nil nil nil nil))
-      (assert-false
-       (get-response "ko " nil nil nil nil))
-      ))
-
-(define-test
-    cmd-test-suite
-    (let ((x '(0)))
-      (get-response "ok" nil nil x nil) (assert-equal '(0) x)
-      (get-response "ko" nil nil x nil) (assert-equal '(1) x)
-      (get-response "ok" nil nil x nil) (assert-equal '(0) x)
-      )
-  )
+                                        ;(define-test
+                                        ;    response-test-suite
+                                        ;    (with-open-file
+                                        ;        (*standard-output* "/dev/null" :direction :output :if-exists :supersede)
+                                        ;      (assert-false
+                                        ;       (get-response "{ sibur phiras, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{sibur phiras, , nourriture  nourriture deraumere, sibur thystame}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{sibur phiras,  , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{sibur phiras, , nourriture nourriture deramere, sibur thystame}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame }" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{sibur phis, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame  4}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{nourriture 10 , linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras f, thystame 4}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0 , phiras 0, thystame 4}" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4 }" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "message 12, rtghjdf" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response " message 2, rtghjdf" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "message 2 , rtghjdf" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "messge 2, rtghjdf" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response " ok" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response " ko" nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "ok " nil nil nil nil))
+                                        ;      (assert-false
+                                        ;       (get-response "ko " nil nil nil nil))
+                                        ;      ))
 
 (define-test
     vision-test-suite
-    (let (x)
-      (setq x '(0))
-      (get-response "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}" x nil nil nil)
-      (assert-equal '((0 |linemate| |sibur|) (1 |deraumere|) (2 |sibur| |sibur| |sibur| |thystame|) (3 |phiras| |phiras|)) x)
-      (get-response "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-      (assert-equal '((0 |sibur|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|)) x)
-      (get-response "{, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-      (assert-equal '((0) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|)) x)
-      (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame}" x nil nil nil)
-      (assert-equal '((0 |sibur| |phiras|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3)) x)
-      )
-  (assert-equal
-   '((0 |linemate| |sibur|) (1 |deraumere|) (2 |sibur| |sibur| |sibur| |thystame|) (3 |phiras| |phiras|))
-   (get-vision "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}"))
+    (assert-equal
+     '((0 |linemate| |sibur|) (1 |deraumere|) (2 |sibur| |sibur| |sibur| |thystame|) (3 |phiras| |phiras|))
+     (get-vision "{linemate sibur, phiras phiras, deraumere, sibur sibur sibur thystame}"))
   (assert-equal
    '((0 |sibur|) (1 |nourriture| |nourriture| |deraumere|) (2 |sibur| |thystame|) (3 |nourriture| |sibur| |phiras| |phiras|))
    (get-vision "{sibur, nourriture sibur phiras phiras, nourriture nourriture deraumere, sibur thystame}"))
@@ -104,17 +84,10 @@
   )
 
 (define-test
-    inventory-get-suite
-    (let ((x '(0)))
-      (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}" nil x nil nil)
-      (assert-equal '((|nourriture| . 10) (|linemate| . 4) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4)) x)
-      (get-response "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}" nil x nil nil)
-      (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4)) x)
-      )
-  (assert-equal '((|nourriture| . 10) (|linemate| . 4) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
-                (get-inventory "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
-  (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
-                (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
+    (assert-equal '((|nourriture| . 10) (|linemate| . 4) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
+                  (get-inventory "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
+    (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
+                  (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
   )
 
 (define-test
@@ -163,5 +136,16 @@
   (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
   )
 
-(run-tests)
+                                        ;(run-tests)
+(let ((x '()))
+  (if (null x)
+      (print "youpi"))
+  (setf x '(list))
+  (print x)
+  (setf x (cdr x))
+  (print x)
+  (setf x '())
+  (print x)
+  )
+
 (exit)

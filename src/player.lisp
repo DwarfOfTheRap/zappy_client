@@ -6,14 +6,16 @@
                                         ; Level up needs
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
 (defvar *symbol-list* '(|nourriture| |linemate| |deraumere| |sibur| |mendiane| |phiras| |thystame|))
+                                        ;base-inventory
+(defvar *base-inventory* '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
+
+                                        ;socket force-push function: could be used in broadcast.lisp
+(defun force-socket-output (str socket)
+  (format (usocket:socket-stream socket) "~a~%" str)
+  (force-output (usocket:socket-stream socket))
+  )
 
 (load "src/broadcast.lisp")
-
-(defun replace-list (olist nlist)
-  "function that update an old list with a new list"
-  (setf (first olist) (first nlist))
-  (setf (cdr olist) (cdr nlist))
-  )
 
 (defun make-path-2 (tile element)
   "recursive function. Advance to the element then take it"
@@ -97,37 +99,38 @@
           collect (cons tile-num (loop for object in object-list
                                        collect (intern object))))))
 
-(defun get-response (str vision inventory resp msg)
-  (cond
-    ((cl-ppcre:scan "^ok$" str)
-     (setf (first resp) 0))
-    ((cl-ppcre:scan "^ko$" str)
-     (setf (first resp) 1))
-    ((cl-ppcre:scan *inventory-regex* str)
-     (replace-list inventory (get-inventory str)))
-    ((cl-ppcre:scan *vision-regex* str)
-     (replace-list vision (get-vision str)))
-    ((cl-ppcre:scan *broadcast-regex* str)
-     (replace-list msg (get-broadcast str)))
-    (t (progn(format t "Unexpected message: ~a~%" str) (return-from get-response nil))))
-  t)
+(defun game-loop (newcli socket coord)
+  "loop with a throttle until it catch a response from server"
+  (let ((vision '()) (inventory *base-inventory*) (command '()) (objective '()) (msg '()))
+    (loop
+      (if (listen (usocket:socket-stream socket))
+          (let ((str (read-line (usocket:socket-stream socket))))
+            (cond
+              ((cl-ppcre:scan "^(ok)|(ko)$" str)
+               (setf command (cdr command))) ;TODO: update inventory if the command was a "take" or a "put down"
+              ((cl-ppcre:scan *inventory-regex* str)
+               (progn (setf inventory (get-inventory str))
+                      (setf command (cdr command)))
+               )
+              ((cl-ppcre:scan *vision-regex* str)
+               (progn (setf vision (get-vision str))
+                      (setf command (cdr command)))
+               )
+              ((cl-ppcre:scan *broadcast-regex* str)
+               (setf msg (get-broadcast str))) ;TODO: create a function that organize messages and drop useless messages
+              ((cl-ppcre:scan "deplacement \d" str)
+               (setf command (cdr command)))
+              (t (progn (format t "Unexpected message: ~a~%" str) (return-from game-loop nil)))
+              )
+            )
+          (sleep 0.001)
+          )
+      (if (null command)
+          (if (null vision)
+              (force-socket-output "voir" socket)
 
-(defun base-inv ()
-  "return starting inventory"
-  '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
-
-
-
-                                        ;(defun game-loop (newcli socket coord)
-                                        ;  "loop with a throttle until it catch a response from server"
-                                        ;  (let ((vision '(0)) (inventory base-inv) (command '(0)) (objective '(0))) ;should set inventory with 10f
-                                        ;    (loop
-                                        ;      (if (listen (usocket:socket-stream socket))
-                                        ;        ;(progn
-                                        ;        (get-response (read-line (usocket:socket-stream socket)) vision inventory resp msg)
-                                        ;        ; )
-                                        ;        )
-                                        ;      (sleep 0.001)
-                                        ;      )
-                                        ;    )
-                                        ;  )
+              )
+          )
+      )
+    )
+  )
