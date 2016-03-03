@@ -3,8 +3,9 @@
 (defvar *vision03* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |nourriture|) (8)))
 (defvar *vision04* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |linemate|) (8 |sibur| )))
 
-(defvar *inventory01* '((|nourriture| 3) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)))
-(defvar *inventory02* '((|nourriture| 5) (|linemate| 1) (|deraumere| 0)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)))
+(defvar *inventory01* '((|nourriture| . 3) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
+(defvar *inventory02* '((|nourriture| . 5) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
+(defvar *inventory03* '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 0)(|sibur| . 4)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
 
 (load "lib/lisp-unit.lisp")
 (use-package :lisp-unit)
@@ -84,37 +85,38 @@
   )
 
 (define-test
+    inventory-create-test
     (assert-equal '((|nourriture| . 10) (|linemate| . 4) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
                   (get-inventory "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
     (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
                   (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
   )
 
-(define-test
-    broadcast-test-suite
-    (let ((x '(4)))
-      (get-response "message 5, 23456cz" nil nil nil x)
-      (assert-equal '(5 . "23456cz") x)
-      (get-response "message 2, 23456cz" nil nil nil x)
-      (assert-equal '(2 . "23456cz") x)
-      (get-response "message 5, 12345!@#$%QWERqwer" nil nil nil x)
-      (assert-equal '(5 . "12345!@#$%QWERqwer") x)
-      )
-  )
+;(define-test
+;    broadcast-test-suite
+;    (let ((x '(4)))
+;      (get-response "message 5, 23456cz" nil nil nil x)
+;      (assert-equal '(5 . "23456cz") x)
+;      (get-response "message 2, 23456cz" nil nil nil x)
+;      (assert-equal '(2 . "23456cz") x)
+;      (get-response "message 5, 12345!@#$%QWERqwer" nil nil nil x)
+;      (assert-equal '(5 . "12345!@#$%QWERqwer") x)
+;      )
+;  )
 
 (define-test inventory-checking-suite
     (assert-equal '(|nourriture|) (check-inventory *inventory01* 1))
-  (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| 5) (|linemate| 0) (|deraumere| 3)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 1))
-  (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 1) (|deraumere| 0)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 3))
-  (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 0)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
-  (assert-equal '(|deraumere| |mendiane|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 1)(|sibur| 2)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 5))
-  (assert-equal '(|sibur|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 2)(|sibur| 0)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 2))
-  (assert-equal '(|sibur| |phiras|) (check-inventory '((|nourriture| 15) (|linemate| 2) (|deraumere| 2)(|sibur| 1)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 4))
-  (assert-equal '(|nourriture| |mendiane|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 2)(|phiras| 0)(|thystame| 1)) 5))
-  (assert-equal '(|nourriture| |mendiane| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 0)(|phiras| 0)(|thystame| 1)) 7))
-  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 0)(|thystame| 1)) 3))
-  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 1)(|thystame| 1)) 7))
-  (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| 5) (|linemate| 2) (|deraumere| 2)(|sibur| 3)(|mendiane| 3)(|phiras| 2)(|thystame| 0)) 7))
+  (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| . 5) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 1))
+  (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 3))
+  (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 0)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 2))
+  (assert-equal '(|deraumere| |mendiane|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 1)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 5))
+  (assert-equal '(|sibur|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 2))
+  (assert-equal '(|sibur| |phiras|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 1)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 4))
+  (assert-equal '(|nourriture| |mendiane|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 2)(|phiras| . 0)(|thystame| . 1)) 5))
+  (assert-equal '(|nourriture| |mendiane| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 7))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 0)(|thystame| . 1)) 3))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 1)(|thystame| . 1)) 7))
+  (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 2)(|thystame| . 0)) 7))
   )
 
 
@@ -136,16 +138,9 @@
   (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
   )
 
-                                        ;(run-tests)
-(let ((x '()))
-  (if (null x)
-      (print "youpi"))
-  (setf x '(list))
-  (print x)
-  (setf x (cdr x))
-  (print x)
-  (setf x '())
-  (print x)
-  )
+;(run-tests)
+
+(if (cl-ppcre:scan *take-regex* "prend linemate")
+    (print "youpi"))
 
 (exit)
