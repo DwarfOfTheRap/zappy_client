@@ -112,8 +112,8 @@
                (progn
                  (if (> (list-length command) 10)
                      (force-socket-output (nth 10 command) socket))
-                 (if (cl-ppcre:scan *take-regex* (car command))
-                     (setf inventory (update-inventory inventory (car command))))
+            ;     (if (and (string= str "ok") (cl-ppcre:scan *take-regex* (car command)))
+            ;         (setf inventory (update-inventory inventory (car command))))
                  (if (and (eq state 'wandering )(string= (car command) (format nil "broadcast ~a, ~a" team level)))
                      (setf state 'broadcasting))
                  (setf command (cdr command))))
@@ -154,7 +154,8 @@
                (if (null needs)
                    (progn (setf command (format nil "broadcast ~a, ~a" team level))
                           (force-socket-output command socket))
-                   (progn (setf command (make-path (car (search-in-vision needs vision))))
+                   (progn (setf command (cons (make-path (car (search-in-vision needs vision))) "inventaire"))
+                          (setf vision nil)
                           (loop for instruction in command
                                 for i from 1 to 10
                                 do (force-socket-output instruction socket)))))

@@ -138,9 +138,7 @@
   (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
   )
 
-;(run-tests)
+(run-tests)
 
-(if (cl-ppcre:scan *take-regex* "prend linemate")
-    (print "youpi"))
 
 (exit)
