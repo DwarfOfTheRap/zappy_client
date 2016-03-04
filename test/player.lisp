@@ -92,17 +92,15 @@
                   (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
   )
 
-;(define-test
-;    broadcast-test-suite
-;    (let ((x '(4)))
-;      (get-response "message 5, 23456cz" nil nil nil x)
-;      (assert-equal '(5 . "23456cz") x)
-;      (get-response "message 2, 23456cz" nil nil nil x)
-;      (assert-equal '(2 . "23456cz") x)
-;      (get-response "message 5, 12345!@#$%QWERqwer" nil nil nil x)
-;      (assert-equal '(5 . "12345!@#$%QWERqwer") x)
-;      )
-;  )
+(define-test
+    broadcast-test-suite
+    (assert-false (get-broadcast "message 6, youpitralala" "team" 3 nil nil))
+  (assert-false (get-broadcast "message 6, team, 4" "team" 3 nil nil))
+  (assert-false (get-broadcast "message 6, team, 3" "team" 5 nil nil))
+  (assert-false (get-broadcast "message 6, team, 3" "teamal" 3 nil nil))
+  (assert-false (get-broadcast "message 6, teamo, 3" "team" 3 nil nil))
+  (assert-equal '(6 . elevation) (get-broadcast "message 6, team, 3" "team" 3 nil nil))
+  )
 
 (define-test inventory-checking-suite
     (assert-equal '(|nourriture|) (check-inventory *inventory01* 1))
@@ -119,6 +117,11 @@
   (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 2)(|thystame| . 0)) 7))
   )
 
+(define-test put-down-stone-test
+    (assert-equal '("pose linemate" "incantation") (put-down-incantation-stones 1))
+  (assert-equal '("pose linemate" "pose deraumere" "pose sibur" "incantation") (put-down-incantation-stones 2))
+  (assert-equal '("pose linemate" "pose deraumere" "pose deraumere" "pose sibur" "pose sibur" "pose sibur" "pose phiras" "incantation") (put-down-incantation-stones 6))
+  )
 
 (define-test search-test
     (assert-equal '((|linemate| . 0) (|sibur| . 0) (|phiras| . 1) (|thystame| . 3)) (search-in-vision '(|linemate| |sibur| |phiras| |thystame|) *vision01*))
@@ -139,6 +142,4 @@
   )
 
 (run-tests)
-
-
 (exit)
