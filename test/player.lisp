@@ -88,18 +88,28 @@
     inventory-create-test
     (assert-equal '((|nourriture| . 10) (|linemate| . 4) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
                   (get-inventory "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
-    (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
-                  (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
+  (assert-equal '((|nourriture| . 5510) (|linemate| . 9864) (|deraumere| . 5)(|sibur| . 6)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 4))
+                (get-inventory "{nourriture 5510, linemate 9864, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}"))
   )
 
 (define-test
     broadcast-test-suite
-    (assert-false (get-broadcast "message 6, youpitralala" "team" 3 nil nil))
-  (assert-false (get-broadcast "message 6, team, 4" "team" 3 nil nil))
-  (assert-false (get-broadcast "message 6, team, 3" "team" 5 nil nil))
-  (assert-false (get-broadcast "message 6, team, 3" "teamal" 3 nil nil))
-  (assert-false (get-broadcast "message 6, teamo, 3" "team" 3 nil nil))
-  (assert-equal '(6 . elevation) (get-broadcast "message 6, team, 3" "team" 3 nil nil))
+    (let ((state (set-state)) (counter (presence-counter)))
+      (assert-false (get-broadcast "message 6, youpitralala" "team" 3 nil state))
+      (assert-false (get-broadcast "message 6, team, 4" "team" 3 nil state))
+      (assert-false (get-broadcast "message 6, team, 3" "team" 5 nil state))
+      (assert-false (get-broadcast "message 6, team, 3" "teamal" 3 nil state))
+      (assert-false (get-broadcast "message 6, teamo, 3" "team" 3 nil state))
+      (assert-true (funcall (cdr state) 'wandering))
+      (assert-equal '(6 . elevation) (get-broadcast "message 6, team, 3" "team" 3 nil state))
+      (assert-true (funcall (cdr state) 'joining))
+      (assert-equal '(6 . elevation) (get-broadcast "message 6, team, 3" "team" 3 nil state))
+      (funcall (car state) 'broadcasting)
+      ( get-broadcast "message 4, ready: team" "team" 3 counter state)
+      (assert-true (= 0 (funcall (third counter))))
+      ( get-broadcast "message 0, ready: team" "team" 3 counter state)
+      (assert-true (= 1 (funcall (third counter))))
+      )
   )
 
 (define-test inventory-checking-suite
@@ -133,7 +143,14 @@
     (assert-equal '("avance" "avance" "avance" "droite" "avance" "avance" "prend linemate") (make-path '(|linemate| . 13)))
   (assert-equal '("prend linemate") (make-path '(|linemate| . 0)))
   (assert-equal '("avance" "prend linemate") (make-path '(|linemate| . 1)))
+  (let ((state (set-state)))
+    (assert-equal '("gauche") (join-for-incantation 3 nil "test" state))
+    (assert-equal '("droite") (join-for-incantation 7 nil "test" state))
+    (assert-equal '("avance" "gauche" "avance") (join-for-incantation 2 nil "test" state))
+    (assert-equal '("broadcast ready: test") (join-for-incantation 0 nil "test" state))
+    )
   )
+
 
 (define-test test-all
     (assert-equal '("avance" "avance" "gauche" "avance" "avance" "prend nourriture") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision03*))))

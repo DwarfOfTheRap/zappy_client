@@ -29,3 +29,16 @@
         if x
           collect (cons item x) into ret
         finally (return (sort ret #'< :key #'cdr))))
+
+(defun join-for-incantation (dir vision team state) ;TODO: real function
+  (case dir
+    (1 '("avance"))
+    (2 '("avance" "gauche" "avance"))
+    (8 '("avance" "droite" "avance"))
+    ((3 4) '("gauche"))
+    ((6 7) '("droite"))
+    (5 '("gauche" "gauche"))
+    (0 (progn (funcall (car state) 'waiting)
+         (cons (format nil "broadcast ready: ~a" team) nil)))
+    )
+  )

@@ -4,6 +4,7 @@
 (defvar *broadcast-regex* "^message [1-9], .*$")
 (defvar *push-regex* "^deplacement \\d$")
 (defvar *take-regex* "^(prend)|(pose) (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)")
+(defvar *new-level* "niveau actuel : \\d")
                                         ; Level up needs
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
 (defvar *symbol-list* '(|nourriture| |linemate| |deraumere| |sibur| |mendiane| |phiras| |thystame|))
@@ -11,7 +12,7 @@
 (defvar *base-inventory* '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
 
                                         ;socket force-push function: could be used in broadcast.lisp
-(defun force-socket-output (command socket) ;TODO: maybe looping inside this one if needed
+(defun force-socket-output (command socket)
   (loop for str in command
         for i from 1 to 10
         do (progn
@@ -21,15 +22,23 @@
         )
   )
 
+(defun set-state ()
+  (let ((state 'wandering))
+    (cons
+     (lambda (x) (setf state x))
+     (lambda (x) (if (eq x state) t nil)))
+    )
+  )
+
 (load "src/broadcast.lisp")
 (load "src/path.lisp")
 (load "src/inventory.lisp")
-
 (load "src/vision.lisp")
 
 (defun game-loop (newcli socket coord team)
   "loop with a throttle until it catch a response from server" ;TODO: better documentation
-  (let ((state 'wandering) (vision '()) (inventory *base-inventory*) (command '()) (objective '()) (msg '()) (level 1) (counter '()))
+  (let ((state (set-state)) (vision '()) (inventory *base-inventory*)
+        (command '()) (objective '()) (msg '()) (level 1) (counter '()))
     (loop
       (if (listen (usocket:socket-stream socket))
           (let ((str (read-line (usocket:socket-stream socket))))
@@ -38,9 +47,9 @@
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
                  (if (> (list-length command) 10)
-                     (force-socket-output (cons (nth 10 command)) socket))
-                 (and (eq state 'wandering )(string= (car command) (format nil "broadcast ~a, ~a" team level))
-                      (setf state 'broadcasting))
+                     (force-socket-output (cons (nth 10 command) nil) socket))
+                 (and (funcall (cdr state) 'wandering )(string= (car command) (format nil "broadcast ~a, ~a" team level))
+                      (funcall (car state) 'broadcasting))
                  (setf command (cdr command)))
                )
               ((cl-ppcre:scan *inventory-regex* str)
@@ -56,7 +65,18 @@
                  (and ret (setf msg ret)))
                )
               ((cl-ppcre:scan *push-regex* str)
-               (setf command (cdr command)))
+               (setf command (cdr command))
+               )
+              ((string= str "elevation en cours")
+               (progn (and (string= (car command) "incantation")
+                           (setf command (cdr command)))
+                      (funcall (car state) 'waiting))
+               )
+              ((cl-ppcre:scan *new-level* str)
+               (progn (setf level (parse-integer (subseq str 16)))
+                      (funcall (car state) 'wandering)
+                      )
+               )
               (t (progn (format t "Unexpected message: ~a~%" str) (return-from game-loop nil)))
               )
             )
@@ -65,28 +85,28 @@
                                         ;State machine
       (if (null command)
           (cond
-            ((eq state 'broadcasting)
+            ((funcall (cdr state) 'broadcasting)
              (if (= 5 (funcall (third counter)))
-                 (setf command (put-down-incantation-stones level))
-                 (progn (setf command (cons (format nil "broadcast ~a, ~a" team level)))
-                        (force-socket-output command socket)
-                        for i from 1 to 10
-                        )
+                 (progn (setf command (put-down-incantation-stones level))
+                        (force-socket-output command socket))
+                 (progn (setf command (cons (format nil "broadcast ~a, ~a" team level) nil))
+                        (force-socket-output command socket))
                  )
              )
-                                        ;   ((eq state 'waiting)
-                                        ;    (do stuff)
-                                        ;    )
+            ((funcall (cdr state) 'waiting)
+             (sleep 0.001)
+             )
             ((null vision)
              (force-socket-output '("voir") socket)
              )
-                                        ; ((eq state 'joining)
-                                        ;  (do stuff)
-                                        ;  )
-            ((eq state 'wandering)
+            ((funcall (cdr state) 'joining)
+             (progn (join-for-incantation (car msg) vision team state)
+                    (setf vision nil))
+             )
+            ((funcall (cdr state) 'wandering)
              (let ((needs (check-inventory inventory level)))
                (if (null needs)
-                   (progn (setf command (cons (format nil "broadcast ~a, ~a" team level)))
+                   (progn (setf command (cons (format nil "broadcast ~a, ~a" team level) nil))
                           (force-socket-output command socket)
                           (setf counter (presence-counter)))
                    (progn (setf command (append (make-path (car (search-in-vision needs vision))) '("inventaire")))
