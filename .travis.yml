@@ -6,8 +6,9 @@ env:
     - LISP=sbcl
 
 branches:
-  - master
-  - release
+  only:
+    - master
+    - release
 
 install:
   - curl -L https://github.com/luismbo/cl-travis/raw/master/install.sh | sh
