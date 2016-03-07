@@ -152,21 +152,11 @@
   )
 
 
-(defun test-macro ()
-    (let* ((command '()) (socket (handler-case (usocket:socket-connect "171.0.0.1" :element-type 'character)
-                                   (error () (format t "Socket error: unable to connect to server~%")
-                                     (return-from test-macro nil)))))
-      (set-and-send command '("youpi" "tralala") socket)
-      (print command)
-      )
-  )
-
 (define-test test-all
     (assert-equal '("avance" "avance" "gauche" "avance" "avance" "prend nourriture") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision03*))))
   (assert-equal '("gauche" "avance") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision04*))))
   (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
   )
 
-;(run-tests)
-;(test-macro)
+(run-tests)
 (exit)

@@ -10,6 +10,12 @@
   (ql:quickload "usocket")
   (ql:quickload "cl-ppcre"))
 
+; socket function used in all files
+(defun socket-print (string socket)
+  "send string through the socket without waiting"
+  (write-line string (usocket:socket-stream socket))
+  (force-output (usocket:socket-stream socket))
+  )
                                         ;load file.
 (load "src/player.lisp")
 
@@ -40,9 +46,7 @@
                                         ;Wait for BIENVENUE
            (usocket:wait-for-input socket)
            (if (string= (read-line (usocket:socket-stream socket)) "BIENVENUE")
-               (or (format (usocket:socket-stream socket) "~a~%" team) ;maybe write a macro should this be used a lot
-                   (force-output (usocket:socket-stream socket))
-                   )
+               (socket-print (format nil "~a~%" team) socket)
                (progn (format t "Communication error: bad first message~%") (return-from create-client nil)))
                                         ; Get number of new connections
            (usocket:wait-for-input socket)
@@ -56,9 +60,7 @@
              (if (not coord)
                  (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
                  )
-             (or (format (usocket:socket-stream socket) "~a~%" team)
-                 (force-output (usocket:socket-stream socket))
-                 )
+             (socket-print (format nil "~a~%" team) socket)
                                         ;(game-loop '(port hostname team) socket coord)
              )
            (return-from create-client t))

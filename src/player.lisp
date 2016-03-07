@@ -13,11 +13,10 @@
 
                                         ;socket force-push function: could be used in broadcast.lisp
 (defun force-socket-output (command socket)
+  "send the 10 first commands to the server"
   (loop for str in command
         for i from 1 to 10
-        do (progn
-             (format (usocket:socket-stream socket) "~a~%" str)
-             (force-output (usocket:socket-stream socket)))))
+        do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
   (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
@@ -86,17 +85,14 @@
           (cond
             ((funcall (cdr state) 'broadcasting)
              (if (= 5 (funcall (third counter)))
-                 (progn (setf command (put-down-incantation-stones level))
-                        (force-socket-output command socket))
-                 (progn (setf command (cons (format nil "broadcast ~a, ~a" team level) nil))
-                        (force-socket-output command socket))
-                 )
+                 (set-and-send command (put-down-incantation-stones level) socket)
+                 (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket))
              )
             ((funcall (cdr state) 'waiting)
              (sleep 0.001)
              )
             ((null vision)
-             (force-socket-output '("voir") socket)
+             (set-and-send command '("voir") socket)
              )
             ((funcall (cdr state) 'joining)
              (progn (join-for-incantation (car msg) vision team state)
@@ -105,12 +101,11 @@
             ((funcall (cdr state) 'wandering)
              (let ((needs (check-inventory inventory level)))
                (if (null needs)
-                   (progn (setf command (cons (format nil "broadcast ~a, ~a" team level) nil))
-                          (force-socket-output command socket)
+                   (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
                           (setf counter (presence-counter)))
-                   (progn (setf command (append (make-path (car (search-in-vision needs vision))) '("inventaire")))
-                          (setf vision nil)
-                          (force-socket-output command socket))))
+                   (progn (set-and-send command
+                                        (append (make-path (car (search-in-vision needs vision))) '("inventaire")) socket)
+                          (setf vision nil))))
              )
             (t nil)
             )
