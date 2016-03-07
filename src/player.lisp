@@ -17,18 +17,16 @@
         for i from 1 to 10
         do (progn
              (format (usocket:socket-stream socket) "~a~%" str)
-             (force-output (usocket:socket-stream socket))
-             )
-        )
-  )
+             (force-output (usocket:socket-stream socket)))))
+
+(defmacro set-and-send (command list socket)
+  (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
 
 (defun set-state ()
   (let ((state 'wandering))
     (cons
      (lambda (x) (setf state x))
-     (lambda (x) (if (eq x state) t nil)))
-    )
-  )
+     (lambda (x) (if (eq x state) t nil)))))
 
 (load "src/broadcast.lisp")
 (load "src/path.lisp")
@@ -48,7 +46,8 @@
                (progn
                  (if (> (list-length command) 10)
                      (force-socket-output (cons (nth 10 command) nil) socket))
-                 (and (funcall (cdr state) 'wandering )(string= (car command) (format nil "broadcast ~a, ~a" team level))
+                 (and (funcall (cdr state) 'wandering )
+                      (string= (car command) (format nil "broadcast ~a, ~a" team level))
                       (funcall (car state) 'broadcasting))
                  (setf command (cdr command)))
                )
@@ -77,8 +76,8 @@
                       (funcall (car state) 'wandering)
                       )
                )
-              (t (progn (format t "Unexpected message: ~a~%" str) (return-from game-loop nil)))
-              )
+              (t (progn (format t "Unexpected message: ~a~%" str)
+                        (return-from game-loop nil))))
             )
           (sleep 0.001)
           )
