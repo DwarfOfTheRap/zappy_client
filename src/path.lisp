@@ -30,7 +30,10 @@
           collect (cons item x) into ret
         finally (return (sort ret #'< :key #'cdr))))
 
-(defun join-for-incantation (dir vision team state) ;TODO: real function
+(defun join-for-incantation (dir vision team state)
+  "Function that set path to the broadcasting droid and tell him when he is ready
+   @args: int, nil, string, (function ('symbol) -> nil . function ('sym) -> bol)
+   @return (list string string ...)"
   (case dir
     (1 '("avance"))
     (2 '("avance" "gauche" "avance"))

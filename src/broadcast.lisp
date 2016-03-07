@@ -1,15 +1,7 @@
-(defun elevation-broadcast (team level socket)
-  (format (usocket:socket-stream socket) "broadcast ~a, ~a" team level))
-
-;(defun analyze-broadcast (str team level)
-;  "Compare team and level with the broadcast. Return T if it match, nil if it doesn't."
-;  (cond
-;    ((cl-ppcre:scan (format nil "^~a, ~a$" team level) str)
-;     (cons 'elevation dir))
-;    (t nil)
-;    )
-;  )
 (defun presence-counter ()
+  "Closure that count the number of ready robots
+   @args: nil
+   @return: (function -> nil function -> nil function -> int)"
     (let ((count 0))
       (list
        (lambda () (incf count))
@@ -26,7 +18,4 @@ and return a tuple (direction . message): (int . symbol) or nil"
          (cons dir 'elevation))
       ((and (= dir 0) (funcall (cdr state) 'broadcasting) (string= (format nil "ready: ~a" team) msg))
        (funcall (first counter)))
-      (t nil)
-      )
-    )
-  )
+      (t nil))))

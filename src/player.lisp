@@ -13,15 +13,23 @@
 
                                         ;socket force-push function: could be used in broadcast.lisp
 (defun force-socket-output (command socket)
-  "send the 10 first commands to the server"
+  "send the 10 first commands to the server
+   @rgs: list, usocket
+   @return: nil"
   (loop for str in command
         for i from 1 to 10
         do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
+  "Macro used to set a list of string to the command var
+   AND sending it to the server through force-socket-output
+   @rgs: variable, list, usocket"
   (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
 
 (defun set-state ()
+  "Closure saveing the state and comparing it
+   @args: nil
+   @return: (func ('sym) -> nil . func ('sym) -> bool)"
   (let ((state 'wandering))
     (cons
      (lambda (x) (setf state x))
@@ -103,8 +111,8 @@
                (if (null needs)
                    (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
                           (setf counter (presence-counter)))
-                   (progn (set-and-send command
-                                        (append (make-path (car (search-in-vision needs vision))) '("inventaire")) socket)
+                   (progn (set-and-send command (append (make-path (car (search-in-vision needs vision)))
+                                                        '("inventaire")) socket)
                           (setf vision nil))))
              )
             (t nil)
