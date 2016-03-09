@@ -30,14 +30,21 @@
           collect (cons item x) into ret
         finally (return (sort ret #'< :key #'cdr))))
 
-(defun join-for-incantation (dir vision team state)
+(defun find-player (vision level dir turn)
+  (loop for i from 2 to (+ level 2)
+        for j = (- (* i i) dir)
+        collect "avance" into ret
+        until (member '|joueur| (nth j vision))
+        finally (return (append ret (append turn ret)))))
+
+(defun join-for-incantation (dir vision team state level)
   "Function that set path to the broadcasting droid and tell him when he is ready
    @args: int, nil, string, (function ('symbol) -> nil . function ('sym) -> bol)
    @return (list string string ...)"
   (case dir
     (1 '("avance"))
-    (2 '("avance" "gauche" "avance"))
-    (8 '("avance" "droite" "avance"))
+    (2 (find-player vision level 1 '("gauche")))
+    (8 (find-player vision level 2 '("droite")))
     ((3 4) '("gauche"))
     ((6 7) '("droite"))
     (5 '("gauche" "gauche"))

@@ -2,6 +2,9 @@
 (defvar *vision02* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|)))
 (defvar *vision03* '((0 |linemate| |sibur|) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |nourriture|) (8)))
 (defvar *vision04* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |linemate|) (8 |sibur| )))
+(defvar *vision05* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |joueur| |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |sibur| |joueur|)))
+(defvar *vision06* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |joueur| |sibur| |joueur|)))
+
 
 (defvar *inventory01* '((|nourriture| . 3) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
 (defvar *inventory02* '((|nourriture| . 5) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
@@ -23,50 +26,6 @@
   (ql:quickload "cl-ppcre"))
 
 (load "src/player.lisp")
-
-                                        ;(define-test
-                                        ;    response-test-suite
-                                        ;    (with-open-file
-                                        ;        (*standard-output* "/dev/null" :direction :output :if-exists :supersede)
-                                        ;      (assert-false
-                                        ;       (get-response "{ sibur phiras, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{sibur phiras, , nourriture  nourriture deraumere, sibur thystame}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{sibur phiras,  , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{sibur phiras, , nourriture nourriture deramere, sibur thystame}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{sibur phiras, , nourriture nourriture deraumere, sibur thystame }" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{sibur phis, , nourriture nourriture deraumere, sibur thystame}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame  4}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{nourriture 10 , linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras f, thystame 4}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0 , phiras 0, thystame 4}" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "{nourriture 10, linemate 4, deraumere 5, sibur 6, mendiane 0, phiras 0, thystame 4 }" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "message 12, rtghjdf" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response " message 2, rtghjdf" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "message 2 , rtghjdf" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "messge 2, rtghjdf" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response " ok" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response " ko" nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "ok " nil nil nil nil))
-                                        ;      (assert-false
-                                        ;       (get-response "ko " nil nil nil nil))
-                                        ;      ))
 
 (define-test
     vision-test-suite
@@ -158,5 +117,12 @@
   (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
   )
 
-(run-tests)
+;(run-tests)
+(defvar *vision05* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |joueur| |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |sibur| |joueur|)))
+(defvar *vision06* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |joueur| |sibur| |joueur|)))
+
+
+(print (find-player *vision05* 4 1 '("gauche")))
+(print (find-player *vision06* 4 2 '("droite")))
+
 (exit)

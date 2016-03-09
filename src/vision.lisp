@@ -15,6 +15,7 @@
             and do (progn (incf half) (setf sav i))
           finally (return ret))))
 
+
 (defun get-vision (str)
   "Take the vision string response and convert it into a list o strings"
   (let ((tiles-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
