@@ -11,11 +11,12 @@
   (ql:quickload "cl-ppcre"))
 
 ; socket function used in all files
-(defun socket-print (string socket)
+(defun socket-print (str socket)
   "send string through the socket without waiting"
-  (write-line string (usocket:socket-stream socket))
+  (format (usocket:socket-stream socket) "~a" str)
   (force-output (usocket:socket-stream socket))
   )
+
                                         ;load file.
 (load "src/player.lisp")
 
@@ -51,7 +52,7 @@
                                         ; Get number of new connections
            (usocket:wait-for-input socket)
            (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                    (error () (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 0)
+                    (error () (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 1)
                (sb-thread:make-thread (lambda () (create-client port hostname team)))
                )
                                         ; Get map coordonates
@@ -60,8 +61,7 @@
              (if (not coord)
                  (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
                  )
-             (socket-print (format nil "~a~%" team) socket)
-                                        ;(game-loop '(port hostname team) socket coord)
+             (game-loop '(port hostname team) socket coord team)
              )
            (return-from create-client t))
       (usocket:socket-close socket))))
@@ -77,6 +77,20 @@
   t
   )
 
+;(defun thread-closure ()
+;  (let ((main-thread sb-thread:*current-thread*))
+;    (lambda (f)
+;      (sb-thread:make-thread main-thread (lambda () (funcall f))))))
+
+(defun newloop (port hostname team)
+    (sb-thread:make-thread (lambda () (create-client port hostname team)))
+    (loop
+      (sleep 1)
+      (if (= 1 (list-length (sb-thread:list-all-threads)))
+        (return-from newloop nil)
+        )
+    )
+  )
                                         ; Entry point: the program start here
 (defun main (lst)
   (let ((hostname "localhost") team port)
@@ -92,5 +106,5 @@
                                         ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
         (and (usage) (return-from main nil)))
-    (create-client port hostname team))
+    (newloop port hostname team))
   )

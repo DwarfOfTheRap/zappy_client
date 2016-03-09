@@ -82,7 +82,7 @@
                       )
                )
               (t (progn (format t "Unexpected message: ~a~%" str)
-                        (return-from game-loop nil))))
+                        (setf command (cdr command)))))
             )
           (sleep 0.001)
           )
