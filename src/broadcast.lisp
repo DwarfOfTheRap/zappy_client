@@ -15,11 +15,12 @@ and return a tuple (direction . message): (int . symbol) or nil"
   (let ((dir (parse-integer (subseq str 8 9))) (msg (subseq str 11)))
     (cond
       ((string= (format nil "~a, ~a" team level) msg)
-       (case (funcall (cdr state))
-         (('wandering 'hatching) (progn
-                       (funcall (car state) 'respond)
-                       (cons dir 'elevation)))
-         (('joining 'respond) (cons dir 'elevation))
+       (cond
+         ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'hatching))
+          (progn
+            (funcall (car state) 'respond)
+            (cons dir 'elevation)))
+         ((funcall (cdr state) 'joining) (cons dir 'elevation))
            )
        )
       ((and (funcall (cdr state) 'joining) (cl-ppcre:scan (format nil "egg: \\d, ~a" team) msg))
