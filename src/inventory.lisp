@@ -7,10 +7,7 @@ i  @return: (list string string ...)"
           append (loop for j from (nth i stone) downto 1
                         collect (format nil "pose ~a" (nth (+ 1 i) *symbol-list*))
                         ) into ret
-          finally (return (append ret '("incantation")))
-          )
-      )
-  )
+          finally (return (append ret '("incantation"))))))
 
 (defun seek-stone (inventory level)
   "function that check wich object the droid will be looking for

@@ -121,8 +121,6 @@
 (defvar *vision05* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |joueur| |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |sibur| |joueur|)))
 (defvar *vision06* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |joueur| |sibur| |joueur|)))
 
-
-(print (find-player *vision05* 4 1 '("gauche")))
-(print (find-player *vision06* 4 2 '("droite")))
+(print (remove "lala" '("toto" "tutu" "lala" "tata") :test #'string=))
 
 (exit)
