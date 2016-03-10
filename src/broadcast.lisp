@@ -16,7 +16,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
     (cond
       ((string= (format nil "~a, ~a" team level) msg)
        (case (funcall (cdr state))
-         ('wandering (progn
+         (('wandering 'hatching) (progn
                        (funcall (car state) 'respond)
                        (cons dir 'elevation)))
          (('joining 'respond) (cons dir 'elevation))
