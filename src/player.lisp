@@ -3,127 +3,119 @@
 (defvar *inventory-regex*  "^\{nourriture \\d+, linemate \\d+, deraumere \\d+, sibur \\d+, mendiane \\d+, phiras \\d+, thystame \\d+\}$")
 (defvar *broadcast-regex* "^message [1-9], .*$")
 (defvar *push-regex* "^deplacement \\d$")
+(defvar *take-regex* "^(prend)|(pose) (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)")
+(defvar *new-level* "niveau actuel : \\d")
                                         ; Level up needs
 (defvar *stone-per-level* '((1 0 0 0 0 0) (1 1 1 0 0 0) (2 0 1 0 2 0) (1 1 2 0 1 0) (1 2 1 3 0 0) (1 2 3 0 1 0) (2 2 2 2 2 1)))
 (defvar *symbol-list* '(|nourriture| |linemate| |deraumere| |sibur| |mendiane| |phiras| |thystame|))
+                                        ;base-inventory
+(defvar *base-inventory* '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
 
-(defun replace-list (olist nlist)
-  "function that update an old list with a new list"
-  (setf (first olist) (first nlist))
-  (setf (cdr olist) (cdr nlist))
+                                        ;socket force-push function: could be used in broadcast.lisp
+(defun force-socket-output (command socket)
+  "send the 10 first commands to the server
+   @rgs: list, usocket
+   @return: nil"
+  (loop for str in command
+        for i from 1 to 10
+        do (socket-print (format nil "~a~%" str) socket)))
+
+(defmacro set-and-send (command list socket)
+  "Macro used to set a list of string to the command var
+   AND sending it to the server through force-socket-output
+   @rgs: variable, list, usocket"
+  (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
+
+(defun set-state ()
+  "Closure saveing the state and comparing it
+   @args: nil
+   @return: (func ('sym) -> nil . func ('sym) -> bool)"
+  (let ((state 'wandering))
+    (cons
+     (lambda (x) (setf state x))
+     (lambda (x) (if (eq x state) t nil)))))
+
+(load "src/broadcast.lisp")
+(load "src/path.lisp")
+(load "src/inventory.lisp")
+(load "src/vision.lisp")
+
+(defun game-loop (newcli socket coord team)
+  "loop with a throttle until it catch a response from server" ;TODO: better documentation
+  (let ((state (set-state)) (vision '()) (inventory *base-inventory*)
+        (command '()) (objective '()) (msg '()) (level 1) (counter '()))
+    (loop
+      (if (listen (usocket:socket-stream socket))
+          (let ((str (read-line (usocket:socket-stream socket))))
+            (cond
+                                        ;reading and parsing server input
+              ((cl-ppcre:scan "^(ok)|(ko)$" str)
+               (progn
+                 (if (> (list-length command) 10)
+                     (force-socket-output (cons (nth 10 command) nil) socket))
+                 (and (funcall (cdr state) 'wandering )
+                      (string= (car command) (format nil "broadcast ~a, ~a" team level))
+                      (funcall (car state) 'broadcasting))
+                 (setf command (cdr command)))
+               )
+              ((cl-ppcre:scan *inventory-regex* str)
+               (setf inventory (get-inventory str) command (cdr command))
+               )
+              ((cl-ppcre:scan *vision-regex* str)
+               (setf vision (get-vision str) command (cdr command))
+               )
+              ((cl-ppcre:scan *broadcast-regex* str)
+               (let ((ret (get-broadcast str team level counter state)))
+                 (and ret (setf msg ret)))
+               )
+              ((cl-ppcre:scan *push-regex* str)
+               (setf command (cdr command))
+               )
+              ((string= str "elevation en cours")
+               (progn (and (string= (car command) "incantation")
+                           (setf command (cdr command)))
+                      (funcall (car state) 'waiting))
+               )
+              ((cl-ppcre:scan *new-level* str)
+               (progn (setf level (parse-integer (subseq str 16)))
+                      (funcall (car state) 'wandering)
+                      )
+               )
+              (t (progn (format t "Unexpected message: ~a~%" str)
+                        (setf command (cdr command)))))
+            )
+          (sleep 0.001)
+          )
+                                        ;State machine
+      (if (null command)
+          (cond
+            ((funcall (cdr state) 'broadcasting)
+             (if (= 5 (funcall (third counter)))
+                 (set-and-send command (put-down-incantation-stones level) socket)
+                 (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket))
+             )
+            ((funcall (cdr state) 'waiting)
+             (sleep 0.001)
+             )
+            ((null vision)
+             (set-and-send command '("voir") socket)
+             )
+            ((funcall (cdr state) 'joining)
+             (progn (join-for-incantation (car msg) vision team state level)
+                    (setf vision nil))
+             )
+            ((funcall (cdr state) 'wandering)
+             (let ((needs (check-inventory inventory level)))
+               (if (null needs)
+                   (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
+                          (setf counter (presence-counter)))
+                   (progn (set-and-send command (append (make-path (car (search-in-vision needs vision)))
+                                                        '("inventaire")) socket)
+                          (setf vision nil))))
+             )
+            (t nil)
+            )
+          )
+      )
+    )
   )
-
-(defun make-path-2 (tile element)
-  (if (= 0 tile)
-      (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element))))
-      (append '("avance") (make-path-2 (- tile 2) element))))
-
-(defun make-path (element)
-  "create a list of command: take @pair and return @string list"
-  (if (null element)
-      (return-from make-path '("gauche" "avance")) )
-  (loop for i from 1 to 7
-        for j = 0 then (+ 1 j)
-        if (<= (* i i) (cdr element))
-          append '("avance") into ret
-        else
-          do (let ((tile (- (cdr element) (* j j))))
-               (if (= 0 tile)
-                   (return-from make-path (append ret (list (concatenate 'string "prend " (symbol-name (car element)))))))
-               (if (oddp tile)
-                   (return-from make-path (append ret '("gauche") (make-path-2 (+ 1 tile) (car element))))
-                   (return-from make-path (append ret '("droite") (make-path-2 tile (car element))))))))
-
-(defun search-in-vision (list vision)
-  "for each item in list, search in vision the corresponding key and return a list of pair (item . tile) or nil"
-  (loop for item in list
-        for x = (loop for sub in vision
-                      when (member item sub)
-                        return (car sub))
-        if x
-          collect (cons item x) into ret
-        finally (return (sort ret #'< :key #'cdr))))
-
-(defun seek-stone (inventory level)
-  "function that check wich object the droid will be looking for"
-  (loop for i from 1 to 6
-        when (< (second (nth i inventory)) (nth (- i 1) (nth (- level 1) *stone-per-level*)))
-          collect (nth i *symbol-list*)))
-
-(defun check-inventory (inventory level)
-  "look if food is needed and seek stones otherwise"
-  (if (< (second (car inventory)) 4) (return-from check-inventory '(|nourriture|)))
-  (if (< (second (car inventory)) 10) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
-  (seek-stone inventory level)
-  )
-
-(defun get-inventory (str)
-  "Take the inventory string response and convert it into a list of list"
-  (let ((case-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
-    (loop for x in case-list
-          for y = (cl-ppcre:split "\\s+" x)
-          collect (cons (intern (first y)) (parse-integer (second y))))))
-
-(defun get-broadcast (str)
-  (list (parse-integer (subseq str 8 9)) (subseq str 11)))
-
-
-(defun organize-line (vision half)
-  "organize vision lines putting the closest tiles first"
-  (loop for i from 0 below half
-        nconc (list (nth i vision) (nth (- (* half 2) i) vision)) into lst
-        finally (return (cons (nth half vision) (nreverse lst)))))
-
-(defun organize-vision (vision)
-  "collect vision lines"
-  (let ((sav 0) (half 0)) ;maybe a better way t do this
-    (loop for item in vision
-          for i from 1
-          collect item into lst
-          when (member i '(1 4 9 16 25 36 49 64))
-            append (organize-line (subseq lst sav) half) into ret
-            and do (progn (incf half) (setf sav i))
-          finally (return ret))))
-
-(defun get-vision (str)
-  "Take the vision string response and convert it into a list o strings"
-  (let ((tiles-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
-    (loop for tiles in (organize-vision tiles-list)
-          for tile-num from 0
-          for object-list = (cl-ppcre:split "\\s+" tiles)
-          collect (cons tile-num (loop for object in object-list
-                                       collect (intern object))))))
-
-(defun get-response (str vision inventory resp msg)
-  (cond
-    ((cl-ppcre:scan "^ok$" str)
-     (setf (first resp) 0))
-    ((cl-ppcre:scan "^ko$" str)
-     (setf (first resp) 1))
-    ((cl-ppcre:scan *inventory-regex* str)
-     (replace-list inventory (get-inventory str)))
-    ((cl-ppcre:scan *vision-regex* str)
-     (replace-list vision (get-vision str)))
-    ((cl-ppcre:scan *broadcast-regex* str)
-     (replace-list msg (get-broadcast str)))
-    (t (progn(format t "Unexpected message: ~a~%" str) (return-from get-response nil))))
-  t)
-
-(defun base-inv ()
-  '((|nourriture| . 10)(|linemate| . 0)(|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 0)))
-
-
-
-                                        ;(defun game-loop (newcli socket coord)
-                                        ;  "loop with a throttle until it catch a response from server"
-                                        ;  (let ((vision '(0)) (inventory base-inv) (command '(0)) (objective '(0))) ;should set inventory with 10f
-                                        ;    (loop
-                                        ;      (if (listen (usocket:socket-stream socket))
-                                        ;        ;(progn
-                                        ;        (get-response (read-line (usocket:socket-stream socket)) vision inventory resp msg)
-                                        ;        ; )
-                                        ;        )
-                                        ;      (sleep 0.001)
-                                        ;      )
-                                        ;    )
-                                        ;  )

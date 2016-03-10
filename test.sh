@@ -4,6 +4,7 @@ for filename in test/*.lisp
 do
     echo -e " ----------------- Executing $filename -----------------"
     #output=`sbcl --script "$filename" | grep "assertions passed" | awk '{print $5}'`
+    #output=`sbcl --noinform --disable-ldb --end-runtime-options --noprint --disable-debugger --load "$filename" | grep "TOTAL"`
     output=`sbcl --script "$filename" | grep "TOTAL"`
     echo $output
     failed=`echo $output | awk '{print $5}'`
