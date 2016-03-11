@@ -1,7 +1,7 @@
                                         ; regex variables
 (defvar *vision-regex* "^\{(|(nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))*| )(,(( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))+| ))+\}$")
 (defvar *inventory-regex*  "^\{nourriture \\d+, linemate \\d+, deraumere \\d+, sibur \\d+, mendiane \\d+, phiras \\d+, thystame \\d+\}$")
-(defvar *broadcast-regex* "^message [1-9],.*$")
+(defvar *broadcast-regex* "^message [0-9],.*$")
 (defvar *push-regex* "^deplacement \\d$")
 (defvar *take-regex* "^(prend)|(pose) (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)")
 (defvar *new-level* "niveau actuel : \\d")
@@ -17,7 +17,7 @@
    @rgs: list, usocket
    @return: nil"
   (loop for str in command
-        for i from 1 to 10
+        for i from 1 to 1
         do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
@@ -43,8 +43,8 @@
                                         ;reading and parsing server input
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
-                 (if (> (list-length command) 10)
-                     (force-socket-output (cons (nth 10 command) nil) socket))
+                 (if (> (list-length command) 1)
+                     (force-socket-output (cons (nth 1 command) nil) socket))
                  (and (funcall (cdr state) 'wandering )
                       (string= (car command) (format nil "broadcast ~a, ~a" team level))
                       (funcall (car state) 'broadcasting))
@@ -97,7 +97,7 @@
           (cond
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 6 (funcall (fourth present)))
+               (if (> 5 (funcall (fourth present)))
                    (if (> clock 77)
                        (progn
                          (set-and-send command (list (format nil "broadcast egg: ~a, ~a"
