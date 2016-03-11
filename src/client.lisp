@@ -81,7 +81,7 @@
     (sb-thread:make-thread (lambda () (create-client port hostname team)))
     (loop
       (sleep 1)
-      (if (<= 1 (list-length (sb-thread:list-all-threads)))
+      (if (>= 1 (list-length (sb-thread:list-all-threads)))
         (return-from newloop nil)
         )
     )
