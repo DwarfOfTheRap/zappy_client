@@ -26,15 +26,7 @@
    @rgs: variable, list, usocket"
   (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
 
-(defun set-state ()
-  "Closure saveing the state and comparing it
-   @args: nil
-   @return: (func ('sym) -> nil . func ('sym) -> bool)"
-  (let ((state 'wandering))
-    (cons
-     (lambda (x) (setf state x))
-     (lambda (x) (if (eq x state) t nil)))))
-
+(load "src/closure.lisp")
 (load "src/broadcast.lisp")
 (load "src/path.lisp")
 (load "src/inventory.lisp")
@@ -43,7 +35,7 @@
 (defun game-loop (newcli socket coord team)
   "loop with a throttle until it catch a response from server" ;TODO: better documentation
   (let ((state (set-state)) (vision '()) (inventory *base-inventory*) (clock 0) (egg 1)
-        (command '()) (objective '()) (msg '()) (level 1) (counter '()) (present (presence-counter)))
+        (command '()) (count-step '(set-counter)) (msg '()) (level 1) (counter (set-counter)) (present (set-counter)))
     (loop
       (if (listen (usocket:socket-stream socket))
           (let ((str (read-line (usocket:socket-stream socket))))
@@ -71,7 +63,7 @@
                  (if ret
                      (progn
                        (setf msg ret)
-                       (and (funcall (cdr state) 'laying) (>= (funcall (third present)) 5)
+                       (and (funcall (cdr state) 'laying) (>= (funcall (fourth present)) 5)
                             (progn (setf command (remove "fork" command :test #'string=))
                                    (incf egg)
                                    (funcall (car state) 'hatching))))))
@@ -103,23 +95,22 @@
           (cond
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 6 (funcall (third present)))
+               (if (> 6 (funcall (fourth present)))
                    (if (> clock 77)
                        (progn
-                         (setf clock 0)
                          (set-and-send command (list (format nil "broadcast egg: ~a, ~a"
-                                                             (- 4 (funcall (third present))) team)
+                                                             (- 4 (funcall (fourth present))) team)
                                                      "fork") socket)
                          (funcall (first present))
                          (funcall (car state) 'hatching))
                        (incf clock 7))
                    (setf clock 0))
-               (if (= 6 (funcall (third counter)))
+               (if (= 6 (funcall (fourth counter)))
                    (set-and-send command (put-down-incantation-stones level) socket)
                    (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)))
              )
             ((funcall (cdr state) 'laying)
-             (if (< (funcall (third present)) 5)
+             (if (< (funcall (fourth present)) 5)
                  (set-and-send command (list (format nil "broadcast lay: ~a" team) "fork") socket))
              )
             ((funcall (cdr state) 'waiting)
@@ -134,7 +125,8 @@
              (set-and-send command '("voir") socket)
              )
             ((funcall (cdr state) 'hatching)
-             (progn (set-and-send command (append (make-path (car (search-in-vision *symbol-list* vision)))
+             (progn (set-and-send command (append (make-path (car (search-in-vision *symbol-list* vision))
+                                                             count-step)
                                                   '("inventaire" "connect_nbr")) socket)
                     (setf vision nil))
              )
@@ -146,7 +138,7 @@
              (let ((needs (check-inventory inventory level)))
                (if (null needs)
                    (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
-                          (setf counter (presence-counter)))
+                          (funcall (third counter) 0))
                    (progn (set-and-send command (append (make-path (car (search-in-vision needs vision)))
                                                         '("inventaire")) socket)
                           (setf vision nil))))

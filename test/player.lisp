@@ -53,7 +53,7 @@
 
 (define-test
     broadcast-test-suite
-    (let ((state (set-state)) (counter (presence-counter)))
+    (let ((state (set-state)) (counter (set-counter)))
       (assert-false (get-broadcast "message 6, youpitralala" "team" 3 nil state nil))
       (assert-false (get-broadcast "message 6, team, 4" "team" 3 nil state nil))
       (assert-false (get-broadcast "message 6, team, 3" "team" 5 nil state nil))
@@ -64,9 +64,9 @@
       (assert-true (funcall (cdr state) 'respond))
       (funcall (car state) 'broadcasting)
       ( get-broadcast "message 4, ready: team" "team" 3 counter state nil)
-      (assert-true (= 0 (funcall (third counter))))
+      (assert-true (= 0 (funcall (fourth counter))))
       ( get-broadcast "message 0, ready: team" "team" 3 counter state nil)
-      (assert-true (= 1 (funcall (third counter))))
+      (assert-true (= 1 (funcall (fourth counter))))
       )
   )
 
@@ -111,14 +111,17 @@
 
 
 (define-test test-all
-    (assert-equal '("avance" "avance" "gauche" "avance" "avance" "prend nourriture") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision03*))))
-  (assert-equal '("gauche" "avance") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision04*))))
-  (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
+    (let ((count ))
+     (assert-equal '("avance" "avance" "gauche" "avance" "avance" "prend nourriture") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision03*))))
+     (assert-equal '("gauche" "avance") (make-path (car (search-in-vision (check-inventory *inventory01* 1) *vision04*))))
+     (assert-equal '("avance" "prend phiras") (make-path (car (search-in-vision (check-inventory *inventory02* 3) *vision04*))))
+     )
   )
 
 ;(run-tests)
 (defvar *vision05* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |joueur| |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |sibur| |joueur|)))
 (defvar *vision06* '((0) (1 |phiras| |phiras|) (2 |deraumere|) (3 |phiras|) (4 |mendiane|) (5) (6 |sibur|) (7 |joueur| |linemate|) (8 |joueur| |sibur| |joueur|)))
 
-(run-tests)
+;(run-tests)
+(print (cons "youpi" (loop repeat 4 collect "avance")))
 (exit)

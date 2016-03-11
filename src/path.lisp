@@ -4,10 +4,13 @@
       (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element))))
       (append '("avance") (make-path-2 (- tile 2) element))))
 
-(defun make-path (element)
+(defun make-path (element count-step)
   "create a list of command: take @pair and return @string list"
   (if (null element)
-      (return-from make-path '("gauche" "avance")) )
+      (progn (funcall (first count-step))
+       (return-from make-path (cons "gauche" (loop repeat (funcall fourth count-step) collect "avance"))))
+      )
+  (funcall (third count-step) 0)
   (loop for i from 1 to 7
         for j = 0 then (+ 1 j)
         if (<= (* i i) (cdr element))
@@ -49,6 +52,4 @@
     ((6 7) '("droite"))
     (5 '("gauche" "gauche"))
     (0 (progn (funcall (car state) 'waiting)
-         (cons (format nil "broadcast ready: ~a" team) nil)))
-    )
-  )
+         (cons (format nil "broadcast ready: ~a" team) nil)))))
