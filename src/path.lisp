@@ -8,7 +8,7 @@
   "create a list of command: take @pair and return @string list"
   (if (null element)
       (progn (funcall (first count-step))
-       (return-from make-path (cons "gauche" (loop repeat (funcall fourth count-step) collect "avance"))))
+       (return-from make-path (cons "gauche" (loop repeat (funcall (fourth count-step)) collect "avance"))))
       )
   (funcall (third count-step) 0)
   (loop for i from 1 to 7

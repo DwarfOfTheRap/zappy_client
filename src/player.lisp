@@ -35,7 +35,7 @@
 (defun game-loop (newcli socket coord team)
   "loop with a throttle until it catch a response from server" ;TODO: better documentation
   (let ((state (set-state)) (vision '()) (inventory *base-inventory*) (clock 0) (egg 1)
-        (command '()) (count-step '(set-counter)) (msg '()) (level 1) (counter (set-counter)) (present (set-counter)))
+        (command '()) (count-step (set-counter)) (msg '()) (level 1) (counter (set-counter)) (present (set-counter)))
     (loop
       (if (listen (usocket:socket-stream socket))
           (let ((str (read-line (usocket:socket-stream socket))))
@@ -139,7 +139,8 @@
                (if (null needs)
                    (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
                           (funcall (third counter) 0))
-                   (progn (set-and-send command (append (make-path (car (search-in-vision needs vision)))
+                   (progn (set-and-send command (append (make-path (car (search-in-vision needs vision))
+                                                                   count-step)
                                                         '("inventaire")) socket)
                           (setf vision nil))))
              )

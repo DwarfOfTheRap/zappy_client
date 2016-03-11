@@ -77,16 +77,11 @@
   t
   )
 
-;(defun thread-closure ()
-;  (let ((main-thread sb-thread:*current-thread*))
-;    (lambda (f)
-;      (sb-thread:make-thread main-thread (lambda () (funcall f))))))
-
 (defun newloop (port hostname team)
     (sb-thread:make-thread (lambda () (create-client port hostname team)))
     (loop
       (sleep 1)
-      (if (= 1 (list-length (sb-thread:list-all-threads)))
+      (if (<= 1 (list-length (sb-thread:list-all-threads)))
         (return-from newloop nil)
         )
     )
