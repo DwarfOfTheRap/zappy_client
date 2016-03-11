@@ -45,11 +45,11 @@
    @args: int, nil, string, (function ('symbol) -> nil . function ('sym) -> bol)
    @return (list string string ...)"
   (case dir
-    (1 '("avance"))
+    (1 '("avance" "inventaire"))
     (2 (find-player vision level 1 '("gauche")))
     (8 (find-player vision level 2 '("droite")))
     ((3 4) '("gauche"))
     ((6 7) '("droite"))
-    (5 '("gauche" "gauche"))
+    (5 '("gauche" "gauche" "avance"))
     (0 (progn (funcall (car state) 'waiting)
          (cons (format nil "broadcast ready: ~a" team) nil)))))
