@@ -1,7 +1,7 @@
                                         ; regex variables
 (defvar *vision-regex* "^\{(|(nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))*| )(,(( (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame))+| ))+\}$")
 (defvar *inventory-regex*  "^\{nourriture \\d+, linemate \\d+, deraumere \\d+, sibur \\d+, mendiane \\d+, phiras \\d+, thystame \\d+\}$")
-(defvar *broadcast-regex* "^message [1-9], .*$")
+(defvar *broadcast-regex* "^message [1-9],.*$")
 (defvar *push-regex* "^deplacement \\d$")
 (defvar *take-regex* "^(prend)|(pose) (nourriture|joueur|linemate|deraumere|sibur|mendiane|phiras|thystame)")
 (defvar *new-level* "niveau actuel : \\d")

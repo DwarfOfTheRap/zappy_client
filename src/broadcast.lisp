@@ -2,7 +2,7 @@
 (defun get-broadcast (str team level counter state present)
   "Read the broadcast response, update an elevation closure if needed
 and return a tuple (direction . message): (int . symbol) or nil"
-  (let ((dir (parse-integer (subseq str 8 9))) (msg (subseq str 11)))
+  (let ((dir (parse-integer (subseq str 8 9))) (msg (subseq str 10)))
     (cond
       ((string= (format nil "~a, ~a" team level) msg)
        (cond
