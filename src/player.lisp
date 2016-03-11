@@ -103,7 +103,7 @@
           (cond
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 5 (funcall (third present)))
+               (if (> 6 (funcall (third present)))
                    (if (> clock 77)
                        (progn
                          (setf clock 0)
@@ -139,7 +139,7 @@
                     (setf vision nil))
              )
             ((funcall (cdr state) 'joining)
-             (progn (join-for-incantation (car msg) vision team state level)
+             (progn (set-and-send command (join-for-incantation (car msg) vision team state level) socket)
                     (setf vision nil))
              )
             ((funcall (cdr state) 'wandering)
