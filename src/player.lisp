@@ -83,6 +83,7 @@
 
               ((cl-ppcre:scan *new-level* str)
                (progn (setf level (parse-integer (subseq str 16)))
+                      (and (= level 8) (return-from game-loop))
                       (setf command '())
                       (funcall (third present) 0)
                       (funcall (car state) 'wandering)
