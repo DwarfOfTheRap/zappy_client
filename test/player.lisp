@@ -7,7 +7,7 @@
 
 
 (defvar *inventory01* '((|nourriture| . 3) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
-(defvar *inventory02* '((|nourriture| . 5) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
+(defvar *inventory02* '((|nourriture| . 8) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
 (defvar *inventory03* '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 0)(|sibur| . 4)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)))
 
 (load "lib/lisp-unit.lisp")
@@ -72,17 +72,17 @@
 
 (define-test inventory-checking-suite
     (assert-equal '(|nourriture|) (check-inventory *inventory01* 1))
-  (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| . 5) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 1))
-  (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 3))
-  (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 0)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 2))
+  (assert-equal '(|nourriture| |linemate|) (check-inventory '((|nourriture| . 8) (|linemate| . 0) (|deraumere| . 3)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 1))
+  (assert-equal '(|nourriture| |linemate| |sibur| |phiras|) (check-inventory '((|nourriture| . 8) (|linemate| . 1) (|deraumere| . 0)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 3))
+  (assert-equal '(|nourriture| |deraumere|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 0)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 2))
   (assert-equal '(|deraumere| |mendiane|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 1)(|sibur| . 2)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 5))
   (assert-equal '(|sibur|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 0)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 2))
   (assert-equal '(|sibur| |phiras|) (check-inventory '((|nourriture| . 15) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 1)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 4))
-  (assert-equal '(|nourriture| |mendiane|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 2)(|phiras| . 0)(|thystame| . 1)) 5))
-  (assert-equal '(|nourriture| |mendiane| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 7))
-  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 0)(|thystame| . 1)) 3))
-  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 1)(|thystame| . 1)) 7))
-  (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| . 5) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 2)(|thystame| . 0)) 7))
+  (assert-equal '(|nourriture| |mendiane|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 2)(|phiras| . 0)(|thystame| . 1)) 5))
+  (assert-equal '(|nourriture| |mendiane| |phiras|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 0)(|phiras| . 0)(|thystame| . 1)) 7))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 0)(|thystame| . 1)) 3))
+  (assert-equal '(|nourriture| |phiras|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 1)(|thystame| . 1)) 7))
+  (assert-equal '(|nourriture| |thystame|) (check-inventory '((|nourriture| . 8) (|linemate| . 2) (|deraumere| . 2)(|sibur| . 3)(|mendiane| . 3)(|phiras| . 2)(|thystame| . 0)) 7))
   )
 
 (define-test put-down-stone-test

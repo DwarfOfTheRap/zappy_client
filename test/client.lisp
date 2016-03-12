@@ -12,30 +12,13 @@
           (force-output (usocket:socket-stream connection))
           (format (usocket:socket-stream connection) "~a~%" team)
           (force-output (usocket:socket-stream connection))
+          (format (usocket:socket-stream connection) "~a~%" 0)
+          (force-output (usocket:socket-stream connection))
           (format (usocket:socket-stream connection) "~a~%" coord)
           (force-output (usocket:socket-stream connection)))
       (progn
         (usocket:socket-close connection)
         (usocket:socket-close socket)))))
-
-(define-test bad-args
-  (with-open-file
-   (*standard-output* "/dev/null" :direction :output
-                      :if-exists :supersede)
-   (assert-false (main '("truc" "")))
-   (assert-false (main '("truc" "-t" "machin")))
-   (assert-false (main '("truc" "-n" "machin")))
-   (assert-false (main '("truc" "-n" "machin" "-y" "truc")))
-   (assert-false (main '("truc" "-n" "machin" "-p" "truc")))
-   (assert-false (main '("truc" "-n" "machin" "-p")))
-   (assert-false (main '("truc" "-n" "machin" "-p" "342ui")))
-   (assert-false (main '("truc" "-n" "machin" "-h" "localhost")))
-   (assert-false (main '("truc" "-n" "machin" "-p" "54343" "localhost")))
-   (assert-false (main '("truc" "-n" "machin" "-p" "54343" "localhost" "test")))
-   (assert-false (main '("truc" "-n" "-p" "54343")))
-   (assert-false (main '("truc" "machin" "-n" "-p" "54343")))
-   )
-  )
 
 (define-test create-client-test
   (with-open-file
@@ -44,7 +27,7 @@
    (assert-false (create-client 67878 "localhost" "team"))
    (let ((x (sb-thread:make-thread (lambda () (create-server 7777 "BIENVENUE" "0" "43 654")))))
      (sleep 1)
-     (assert-true (create-client 7777 "127.0.0.1" "team"))
+     (assert-false (create-client 7777 "127.0.0.1" "team"))
      (sb-thread:terminate-thread x)
      )
    (let ((x (sb-thread:make-thread (lambda () (create-server 7778 "BIENvENUE" "0" "43 654")))))
