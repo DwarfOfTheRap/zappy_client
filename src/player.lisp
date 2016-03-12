@@ -17,7 +17,7 @@
    @rgs: list, usocket
    @return: nil"
   (loop for str in command
-        for i from 1 to 1
+        for i from 1 to 10
         do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
@@ -43,8 +43,8 @@
 
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
-                 (if (> (list-length command) 1)
-                     (force-socket-output (cons (nth 1 command) nil) socket))
+                 (if (> (list-length command) 10)
+                     (force-socket-output (cons (nth 10 command) nil) socket))
                  (and (funcall (cdr state) 'wandering )
                       (string= (car command) (format nil "broadcast ~a, ~a" team level))
                       (funcall (car state) 'broadcasting))

@@ -104,4 +104,3 @@
     (newloop port hostname team))
   )
 
-(sb-ext:save-lisp-and-die "hello.exe" :toplevel #'main :executable t)
