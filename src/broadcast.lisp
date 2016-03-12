@@ -3,7 +3,7 @@
   "Read the broadcast response, update an elevation closure if needed
 and return a tuple (direction . message): (int . symbol) or nil"
   (let ((dir (parse-integer (subseq str 8 9))) (msg (subseq str 10)))
-    (con
+    (cond
      ((string= (format nil "~a, ~a" team level) msg)
       (cond
         ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'hatching))
@@ -20,7 +20,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
             (funcall (car state) 'laying))
         )
       )
-     ((string= (format nil "stop ~a, ~a" team level))
+     ((string= (format nil "stop ~a, ~a" team level) msg)
       (progn
         (funcall (third counter) 0)
         (funcall (car state) 'wandering)

@@ -9,6 +9,7 @@ branches:
   only:
     - master
     - release
+    - develop
 
 install:
   - curl -L https://github.com/luismbo/cl-travis/raw/master/install.sh | sh

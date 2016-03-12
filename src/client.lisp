@@ -87,8 +87,8 @@
     )
   )
                                         ; Entry point: the program start here
-(defun main (lst)
-  (let ((hostname "localhost") team port)
+(defun main ()
+  (let ((lst (cdr *posix-argv*)) (hostname "localhost") team port)
     (loop for a in lst by #'cddr
           for b in (cdr lst) by #'cddr when (and (evenp (length lst)) (>= 6 (length lst))) ; check if args are even and < 6
           do (cond
@@ -103,3 +103,5 @@
         (and (usage) (return-from main nil)))
     (newloop port hostname team))
   )
+
+(sb-ext:save-lisp-and-die "hello.exe" :toplevel #'main :executable t)

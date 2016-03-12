@@ -1,4 +1,4 @@
 ;Entry point in another file for testing purpose
 
 (load "src/client.lisp")
-(main (cdr *posix-argv*))
+(sb-ext:save-lisp-and-die "hello.exe" :toplevel #'main :executable t)
