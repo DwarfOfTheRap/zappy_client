@@ -17,7 +17,7 @@
    @rgs: list, usocket
    @return: nil"
   (loop for str in command
-        for i from 1 to 1
+        for i from 1 to 10
         do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
@@ -34,7 +34,7 @@
 
 (defun game-loop (newcli socket coord team)
   "loop with a throttle until it catch a response from server" ;TODO: better documentation
-  (let ((state (set-state)) (vision '()) (inventory *base-inventory*) (clock 0) (egg 1)
+  (let ((state (set-state)) (vision '()) (inventory *base-inventory*) (clock 0) (egg 1) (time 0)
         (command '()) (count-step (set-counter)) (msg '()) (level 1) (counter (set-counter)) (present (set-counter)))
     (loop
       (if (listen (usocket:socket-stream socket))
@@ -43,8 +43,8 @@
                                         ;reading and parsing server input
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
-                 (if (> (list-length command) 1)
-                     (force-socket-output (cons (nth 1 command) nil) socket))
+                 (if (> (list-length command) 10)
+                     (force-socket-output (cons (nth 10 command) nil) socket))
                  (and (funcall (cdr state) 'wandering )
                       (string= (car command) (format nil "broadcast ~a, ~a" team level))
                       (funcall (car state) 'broadcasting))
@@ -72,14 +72,13 @@
                (setf command (cdr command))
                )
               ((string= str "elevation en cours")
-               (progn (and (string= (car command) "incantation")
-                           (setf command (cdr command)))
+               (progn (setf command '())
                       (funcall (third counter) 0)
                       (funcall (car state) 'waiting))
                )
               ((cl-ppcre:scan *new-level* str)
                (progn (setf level (parse-integer (subseq str 16)))
-                      (funcall (third present) 5)
+                      (funcall (third present) 0)
                       (funcall (car state) 'wandering)
                       )
                )
@@ -89,6 +88,9 @@
                     (progn (create-client (car newcli) (second newcli) (third newcli))
                            (funcall (car state) 'wandering)))
                 )
+               )
+              ((string= "mort" str)
+               (return-from game-loop nil)
                )
               (t (progn (format t "Unexpected message: ~a~%" str) (setf command (cdr command)))))
             )
@@ -111,14 +113,28 @@
                    (setf clock 0))
                (if (<= 5 (funcall (fourth counter)))
                    (set-and-send command (put-down-incantation-stones level) socket)
-                   (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)))
+                   (if (< (cdar inventory) 4)
+                       (progn (funcall (car state) 'wandering)
+                              (funcall (third counter) 0)
+                              (set-and-send command (list (format nil "broadcast stop ~a, ~a" team level)) socket))
+                       (if (> time 180)
+                           (progn (setf time 0)
+                                  (set-and-send command (list (format nil "broadcast ~a, ~a" team level)
+                                                              "inventaire") socket))
+                           (progn (incf time 7)
+                                  (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)))))
+               )
              )
             ((funcall (cdr state) 'laying)
              (if (< (funcall (fourth present)) 5)
                  (set-and-send command (list (format nil "broadcast lay: ~a" team) "fork") socket))
              )
             ((funcall (cdr state) 'waiting)
-             (sleep 0.001)
+             (if (> time 180)
+                 (progn (setf time 0)
+                        (set-and-send command (list "voir" "inventaire") socket))
+                 (progn (incf time 7)
+                        (set-and-send command (list "voir") socket)))
              )
             ((funcall (cdr state) 'respond)
              (progn (funcall (car state) 'joining)

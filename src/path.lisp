@@ -34,7 +34,7 @@
         finally (return (sort ret #'< :key #'cdr))))
 
 (defun find-player (vision level dir turn)
-  (loop for i from 2 to (+ level 1)
+  (loop for i from 2 to (+ level 2)
         for j = (- (* i i) dir)
         collect "avance" into ret
         until (member '|joueur| (nth j vision))
