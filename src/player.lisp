@@ -115,7 +115,7 @@
              )
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (>= 5 (funcall (fourth present)))
+               (if (<= 5 (funcall (fourth present)))
                  (if (and (> clock 77) (< clock 90))
                    (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
                    (if (> clock 90)
