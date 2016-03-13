@@ -114,14 +114,16 @@
             ((funcall (cdr state) 'broadcasting)
              (progn
                (if (> 5 (funcall (fourth present)))
-                   (if (> clock 77)
+                 (if (and (> clock 77) (< clock 90))
+                   (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
+                   (if (> clock 90)
                        (progn
                          (set-and-send command (list (format nil "broadcast egg: ~a, ~a"
                                                              (- 4 (funcall (fourth present))) team)
                                                      "fork") socket)
                          (funcall (first present))
                          (funcall (car state) 'hatching))
-                       (incf clock 7))
+                       (incf clock 7)))
                    (setf clock 0))
                (if (<= 5 (funcall (fourth counter)))
                    (set-and-send command (put-down-incantation-stones level) socket)
