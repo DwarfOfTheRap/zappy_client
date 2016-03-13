@@ -17,7 +17,7 @@
    @rgs: list, usocket
    @return: nil"
   (loop for str in command
-        for i from 1 to 10
+        for i from 1 to 1
         do (socket-print (format nil "~a~%" str) socket)))
 
 (defmacro set-and-send (command list socket)
@@ -43,8 +43,8 @@
 
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
-                 (if (> (list-length command) 10)
-                     (force-socket-output (cons (nth 10 command) nil) socket))
+                 (if (> (list-length command) 1)
+                     (force-socket-output (cons (nth 1 command) nil) socket))
                  (and (funcall (cdr state) 'wandering )
                       (string= (car command) (format nil "broadcast ~a, ~a" team level))
                       (progn (funcall (third counter) 0)
@@ -115,7 +115,7 @@
              )
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 5 (funcall (fourth present)))
+               (if (>= 5 (funcall (fourth present)))
                  (if (and (> clock 77) (< clock 90))
                    (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
                    (if (> clock 90)
@@ -138,8 +138,7 @@
                                   (set-and-send command (list (format nil "broadcast ~a, ~a" team level)
                                                               "inventaire") socket))
                            (progn (incf tim 7)
-                                  (set-and-send command '("voir") socket)))))
-               )
+                                  (set-and-send command (list (format nil "broadcast ~a, ~a" team level)) socket))))))
              )
             ((funcall (cdr state) 'laying)
              (if (< (funcall (fourth present)) 5)
@@ -153,7 +152,7 @@
                      (progn (setf tim 0)
                             (set-and-send command (list (format nil "broadcast ~a, ~a" team level) "inventaire") socket))
                      (progn (incf tim 7)
-                            (set-and-send command (list (format nil "broadcast ~a, ~a" team level)) socket)))
+                            (set-and-send command '("voir") socket)))
                  )
              )
             ((funcall (cdr state) 'respond)
