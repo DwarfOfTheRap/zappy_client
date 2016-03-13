@@ -104,7 +104,7 @@
                )
               (t (progn (format t "Unexpected message: ~a~%" str) (setf command (cdr command)))))
             )
-          (sleep 0.001)
+          (sleep 0.00001)
           )
 
                                         ;State machine
@@ -138,7 +138,7 @@
                                   (set-and-send command (list (format nil "broadcast ~a, ~a" team level)
                                                               "inventaire") socket))
                            (progn (incf tim 7)
-                                  (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)))))
+                                  (set-and-send command '("voir") socket)))))
                )
              )
             ((funcall (cdr state) 'laying)

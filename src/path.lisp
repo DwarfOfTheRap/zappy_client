@@ -50,6 +50,6 @@
     (8 (find-player vision level 2 '("droite")))
     ((3 4) '("gauche"))
     ((6 7) '("droite"))
-    (5 '("gauche" "gauche" "avance"))
+    (5 '("gauche" "gauche" "avance" "voir"))
     (0 (progn (funcall (car state) 'waiting)
          (cons (format nil "broadcast ready: ~a" team) nil)))))

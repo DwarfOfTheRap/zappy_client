@@ -48,11 +48,11 @@
            (usocket:wait-for-input socket)
            (if (string= (read-line (usocket:socket-stream socket)) "BIENVENUE")
                (socket-print (format nil "~a~%" team) socket)
-               (progn (format t "Communication error: bad first message~%") (return-from create-client nil)))
+               (progn (format t "Communication error: bad first message%") (return-from create-client nil)))
                                         ; Get number of new connections
            (usocket:wait-for-input socket)
            (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                    (error () (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 1)
+                    (error () (format t "Communication error: <nb-client> not a number~%") (return-from create-client nil))) 1)
                (sb-thread:make-thread (lambda () (create-client port hostname team)))
                )
                                         ; Get map coordonates
