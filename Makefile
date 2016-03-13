@@ -6,9 +6,11 @@ FLAGS := --script
 all: $(NAME)
 
 $(NAME):
+	@echo [build]: creating $@
 	$(CL) $(FLAGS) $(SRC)
+	@echo [build]: created $@
 
 fclean:
-	rm $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
