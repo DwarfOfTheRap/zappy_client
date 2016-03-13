@@ -26,6 +26,12 @@ and return a tuple (direction . message): (int . symbol) or nil"
         (funcall (car state) 'wandering)
         )
       )
+     ((string= (format nil "connected: ~a, ~a" team level) msg)
+      (progn
+        (funcall (third counter) 0)
+        (funcall (car state) 'wandering)
+        )
+      )
      ((and (funcall (cdr state) 'broadcasting) (string= (format nil "present: ~a, ~a" team level) msg))
       (funcall (first present))
       )
