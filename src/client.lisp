@@ -79,12 +79,17 @@
 
 (defun newloop (port hostname team)
     (sb-thread:make-thread (lambda () (create-client port hostname team)))
-    (loop
-      (sleep 1)
-      (if (>= 1 (list-length (sb-thread:list-all-threads)))
-        (return-from newloop nil)
+    (unwind-protect 
+      (loop
+        (sleep 1)
+        (if (>= 1 (list-length (sb-thread:list-all-threads)))
+          (return-from newloop nil)
+          )
         )
-    )
+      (loop for th in (cdr (sb-thread:list-all-threads))
+            do (sb-thread:terminate-thread th)
+        )
+      )
   )
                                         ; Entry point: the program start here
 (defun main ()
@@ -101,6 +106,10 @@
                                         ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
         (and (usage) (return-from main nil)))
-    (newloop port hostname team))
+    (handler-case (newloop port hostname team)
+      (sb-sys:interactive-interrupt ()
+        (format t "I'm your friendly interrupt handler.~%")
+        (sb-ext:quit)))
+    )
   )
 
