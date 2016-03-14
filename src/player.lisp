@@ -104,7 +104,6 @@
                )
               (t (progn (format t "Unexpected message: ~a~%" str) (setf command (cdr command)))))
             )
-          (sleep 0.00001)
           )
 
                                         ;State machine
@@ -170,8 +169,12 @@
                     (setf vision nil))
              )
             ((funcall (cdr state) 'joining)
-             (progn (set-and-send command (join-for-incantation (car msg) vision team state level) socket)
-                    (setf vision nil))
+             (if (< (cdar inventory) 4)
+               (progn (funcall (car state) 'wandering)
+                      (funcall (third counter) 0)
+                      (set-and-send command (list (format nil "broadcast stop ~a, ~a" team level)) socket))
+               (progn (set-and-send command (join-for-incantation (car msg) vision team state level) socket)
+                      (setf vision nil)))
              )
             ((funcall (cdr state) 'wandering)
              (let ((needs (check-inventory inventory level)))
