@@ -46,8 +46,8 @@
    @return (list string string ...)"
   (case dir
     (1 '("avance" "inventaire"))
-    (2 (find-player vision level 1 '("gauche")))
-    (8 (find-player vision level 2 '("droite")))
+    (2 (append (find-player vision level 1 '("gauche")) '("inventaire")))
+    (8 (append (find-player vision level 2 '("droite")) '("inventaire")))
     ((3 4) '("gauche" "inventaire"))
     ((6 7) '("droite" "inventaire"))
     (5 '("gauche" "gauche" "avance" "inventaire"))
