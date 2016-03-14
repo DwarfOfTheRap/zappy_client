@@ -106,10 +106,7 @@
                                         ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
         (and (usage) (return-from main nil)))
-    (handler-case (newloop port hostname team)
-      (sb-sys:interactive-interrupt ()
-        (format t "I'm your friendly interrupt handler.~%")
-        (sb-ext:quit)))
+    (newloop port hostname team)
     )
   )
 

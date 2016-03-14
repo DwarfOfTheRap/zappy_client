@@ -16,6 +16,7 @@
   "send the 10 first commands to the server
    @rgs: list, usocket
    @return: nil"
+   (format t "~a~%" command)
   (loop for str in command
         for i from 1 to 10
         do (socket-print (format nil "~a~%" str) socket)))
@@ -24,7 +25,7 @@
   "Macro used to set a list of string to the command var
    AND sending it to the server through force-socket-output
    @rgs: variable, list, usocket"
-  (list 'progn (list 'setq command list) (list 'force-socket-output list socket)))
+  (list 'progn (list 'setf command list) (list 'force-socket-output command socket)))
 
 (load "src/closure.lisp")
 (load "src/broadcast.lisp")
@@ -95,7 +96,7 @@
                (progn (setf command (cdr command))
                       (if (> (parse-integer str) 0)
                           (progn (create-client (car newcli) (second newcli) (third newcli))
-                                 (set-and-send command (list (format nil "broadcast connected: ~a, ~a" team level)) socket)
+                ;                 (set-and-send command (list (format nil "broadcast connected: ~a, ~a" team level)) socket)
                                  (funcall (car state) 'wandering)))
                       )
                )
@@ -114,7 +115,7 @@
              )
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 5 (funcall (fourth present)))
+               (if (> 1 (funcall (fourth present)))
                  (if (and (> clock 77) (< clock 90))
                    (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
                    (if (> clock 90)
@@ -151,7 +152,7 @@
                      (progn (setf tim 0)
                             (set-and-send command (list (format nil "broadcast ~a, ~a" team level) "inventaire") socket))
                      (progn (incf tim 7)
-                            (set-and-send command '("voir") socket)))
+                            (set-and-send command (list (format nil "broadcast ~a, ~a" team level)) socket)))
                  )
              )
             ((funcall (cdr state) 'respond)
