@@ -23,7 +23,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
      ((string= (format nil "stop ~a, ~a" team level) msg)
       (progn
         (funcall (third counter) 0)
-        (funcall (car state) 'wandering)
+        (funcall (car state) 'stopping)
         )
       )
      ((string= (format nil "connected: ~a, ~a" team level) msg)
