@@ -21,8 +21,8 @@ i  @return: (list string string ...)"
   "Look if food is needed and seek stones otherwise
   @args: (list (list int int ...) (list int int ...) ...); int
   @return (list 'symbol1 'symbol2 ...)"
-  (if (< (cdar inventory) 6) (return-from check-inventory '(|nourriture|)))
-  (if (< (cdar inventory) 10) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
+  (if (< (cdar inventory) 8) (return-from check-inventory '(|nourriture|)))
+  (if (< (cdar inventory) 11) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
   (seek-stone inventory level)
   )
 
