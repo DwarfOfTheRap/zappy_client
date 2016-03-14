@@ -104,6 +104,7 @@
                )
               (t (progn (format t "Unexpected message: ~a~%" str) (setf command (cdr command)))))
             )
+          (sleep 0.0001)
           )
 
                                         ;State machine
@@ -114,7 +115,7 @@
              )
             ((funcall (cdr state) 'broadcasting)
              (progn
-               (if (> 1 (funcall (fourth present)))
+               (if (> 5 (funcall (fourth present)))
                  (if (and (> clock 77) (< clock 90))
                    (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
                    (if (> clock 90)
@@ -163,7 +164,7 @@
              (set-and-send command '("voir") socket)
              )
             ((funcall (cdr state) 'hatching)
-             (progn (set-and-send command (append (make-path (car (search-in-vision *symbol-list* vision))
+             (progn (set-and-send command (append (make-path (car (search-in-vision '('|nourriture|) vision))
                                                              count-step)
                                                   '("inventaire" "connect_nbr")) socket)
                     (setf vision nil))
