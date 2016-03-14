@@ -83,8 +83,10 @@
                )
 
               ((cl-ppcre:scan *new-level* str)
-               (progn (setf level (parse-integer (subseq str 16)))
-                      (and (= level 8) (return-from game-loop))
+               (block level
+                      (setf level (parse-integer (subseq str 16)))
+                      (if (= level 8)
+                        (progn (funcall (car state) 'victory) (return-from level)))
                       (setf command '())
                       (funcall (third present) 0)
                       (funcall (car state) 'wandering)
@@ -110,6 +112,9 @@
                                         ;State machine
       (if (null command)
           (cond
+            ((funcall (cdr state) 'victory)
+             (set-and-send command (list (format nil "broadcast Victory")) socket)
+             )
             ((funcall (cdr state) 'chill)
              (sleep 0.001)
              )
