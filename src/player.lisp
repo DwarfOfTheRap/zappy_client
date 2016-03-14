@@ -16,7 +16,6 @@
   "send the 10 first commands to the server
    @rgs: list, usocket
    @return: nil"
-   (format t "~a~%" command)
   (loop for str in command
         for i from 1 to 10
         do (socket-print (format nil "~a~%" str) socket)))
