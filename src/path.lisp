@@ -44,14 +44,15 @@
   "Function that set path to the broadcasting droid and tell him when he is ready
    @args: int, nil, string, (function ('symbol) -> nil . function ('sym) -> bol)
    @return (list string string ...)"
-  (case dir
-    (1 '("avance" "inventaire"))
-    (2 (append (find-player vision level 1 '("gauche")) '("inventaire")))
-    (8 (append (find-player vision level 2 '("droite")) '("inventaire")))
-    (3 '("gauche" "avance" "inventaire"))
-    (4 '("gauche"))
-    (5 '("gauche" "gauche" "avance" "inventaire"))
-    (6 '("droite"))
-    (7 '("droite" "avance" "inventaire"))
-    (0 (progn (funcall (car state) 'waiting)
-         (cons (format nil "broadcast ready: ~a" team) nil)))))
+   (append (if (find '|nourriture| (car vision)) '("prend nourriture") '())
+           (case dir
+             (1 '("avance" "inventaire"))
+             (2 (append (find-player vision level 1 '("gauche")) '("inventaire")))
+             (8 (append (find-player vision level 2 '("droite")) '("inventaire")))
+             (3 '("gauche" "avance" "inventaire"))
+             (4 '("gauche"))
+             (5 '("gauche" "gauche" "avance" "inventaire"))
+             (6 '("droite"))
+             (7 '("droite" "avance" "inventaire"))
+             (0 (progn (funcall (car state) 'waiting)
+                       (cons (format nil "broadcast ready: ~a" team) nil))))))
