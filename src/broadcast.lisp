@@ -1,5 +1,5 @@
 
-(defun get-broadcast (str team level counter state present)
+(defun get-broadcast (str team level counter state present inventory)
   "Read the broadcast response, update an elevation closure if needed
 and return a tuple (direction . message): (int . symbol) or nil"
   (let ((dir (parse-integer (subseq str 8 9))) (msg (subseq str 10)))
@@ -11,6 +11,8 @@ and return a tuple (direction . message): (int . symbol) or nil"
            (funcall (car state) 'respond)
            (cons dir 'elevation)))
         ((funcall (cdr state) 'joining) (cons dir 'elevation))
+        ((and (funcall (cdr state) 'broadcasting) (> (cdar inventory) 10))
+         (funcall (car state) 'putdown))
         )
       )
      ((and (funcall (cdr state) 'joining) (cl-ppcre:scan (format nil "egg: \\d, ~a" team) msg))

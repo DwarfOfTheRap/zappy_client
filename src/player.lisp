@@ -66,7 +66,7 @@
                )
 
               ((cl-ppcre:scan *broadcast-regex* str)
-               (let ((ret (get-broadcast str team level counter state present)))
+               (let ((ret (get-broadcast str team level counter state present inventory)))
                  (if ret
                      (progn
                        (setf msg ret)
@@ -126,6 +126,7 @@
             ((funcall (cdr state) 'chill)
              (sleep 0.001)
              )
+
             ((funcall (cdr state) 'broadcasting)
              (progn
                (if (> 5 (funcall (fourth present)))
@@ -153,11 +154,19 @@
                            (progn (incf tim 7)
                                   (set-and-send command (list (format nil "broadcast ~a, ~a" team level)) socket))))))
              )
+
+            ((funcall (cdr state) 'putdown)
+             (progn (funcall (car state) 'broadcasting)
+                    (set-and-send command '("pose nourriture" "inventaire") socket)
+               )
+             )
             ((funcall (cdr state) 'laying)
              (if (< (funcall (fourth present)) 5)
                  (set-and-send command (list (format nil "broadcast lay: ~a" team) "fork") socket))
              )
             ((funcall (cdr state) 'waiting)
+             (if (> (cdar inventory) 10)
+               (set-and-send command '("pose nourriture" "inventaire") socket)
              (if (< (cdar inventory) 4)
                  (progn (funcall (car state) 'wandering)
                         (set-and-send command (list (format nil "broadcast stop ~a, ~a" team level)) socket))
@@ -167,6 +176,7 @@
                      (progn (incf tim 7)
                             (set-and-send command (list (format nil "broadcast ~a, ~a" team level)) socket)))
                  )
+             )
              )
             ((funcall (cdr state) 'respond)
              (progn (funcall (car state) 'joining)
