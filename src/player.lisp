@@ -43,6 +43,9 @@
 
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
+                 (if (or (string= "inventaire" (car command)) (string= "voir" (car command)))
+                     (format t "Error: expected ~a; received ~a~%" command str)
+                  )
                  (if (> (list-length command) 10)
                      (force-socket-output (cons (nth 10 command) nil) socket))
                  (and (funcall (cdr state) 'wandering)
@@ -79,8 +82,7 @@
                      (progn
                        (setf msg ret)
                        (and (funcall (cdr state) 'laying) (>= (funcall (fourth present)) 5)
-                            (progn (setf command (remove "fork" command :test #'string=))
-                                   (incf egg)
+                            (progn (incf egg)
                                    (funcall (car state) 'hatching))))))
                )
 
