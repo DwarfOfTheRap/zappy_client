@@ -43,6 +43,9 @@
 
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
+                 (if (or (string= "inventaire" (car command)) (string= "voir" (car command)))
+                     (format t "Error: expected ~a; received ~a~%" command str)
+                  )
                  (if (> (list-length command) 10)
                      (force-socket-output (cons (nth 10 command) nil) socket))
                  (and (funcall (cdr state) 'wandering)
@@ -58,11 +61,19 @@
                )
 
               ((cl-ppcre:scan *inventory-regex* str)
-               (setf inventory (get-inventory str) command (cdr command))
+               (progn
+                 (or  (string= "inventaire" (car command))
+                      (format t "error: expected ~a, received inventory~%" command))
+                (setf inventory (get-inventory str) command (cdr command))
+                )
                )
 
               ((cl-ppcre:scan *vision-regex* str)
-               (setf vision (get-vision str) command (cdr command))
+               (progn
+                 (or  (string= "voir" (car command))
+                      (format t "error: expected ~a, received vision~%" command))
+                (setf vision (get-vision str) command (cdr command))
+                )
                )
 
               ((cl-ppcre:scan *broadcast-regex* str)
@@ -97,10 +108,13 @@
               ((cl-ppcre:scan "^\\d$" str)
                (progn (setf command (cdr command))
                       (if (> (parse-integer str) 0)
-                          (progn (create-client (car newcli) (second newcli) (third newcli))
+                          (progn (lambda () (create-client (car newcli) (second newcli) (third newcli)))
                 ;                 (set-and-send command (list (format nil "broadcast connected: ~a, ~a" team level)) socket)
-                                 (funcall (car state) 'wandering)))
+                                 ))
+                      (if (funcall (cdr state) 'hatching)
+                          (funcall (car state) 'wandering))
                       )
+
                )
               ((string= "mort" str)
                (sb-thread:return-from-thread nil)
