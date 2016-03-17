@@ -63,12 +63,11 @@
              (if (not coord)
                  (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
                  )
-             (game-loop '(port hostname team) socket coord team)
+             (game-loop (list port hostname team) socket coord team)
              )
            (return-from create-client t))
       (handler-case (usocket:socket-close socket)
-        (error () (format t "socket closed~%")))
-      )))
+        (error () (format t "socket closed~%"))))))
 
                                         ; Usage function
 (defun usage ()
