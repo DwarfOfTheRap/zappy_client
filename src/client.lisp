@@ -110,7 +110,11 @@
                                         ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
         (and (usage) (return-from main nil)))
-    (newloop port hostname team)
+    (handler-case
+      (newloop port hostname team)
+      (sb-sys:interactive-interrupt () (format t "Exit...~%") (loop for th in (cdr (sb-thread:list-all-threads))
+            do (sb-thread:terminate-thread th)))
+      )
     )
   )
 
