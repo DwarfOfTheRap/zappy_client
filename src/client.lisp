@@ -14,7 +14,9 @@
 (defun socket-print (str socket)
   "send string through the socket without waiting"
   (format (usocket:socket-stream socket) "~a" str)
-  (force-output (usocket:socket-stream socket))
+  (handler-case
+    (force-output (usocket:socket-stream socket))
+    (error () (format t "Socket closed~%")))
   )
 
                                         ;load file.
@@ -64,7 +66,9 @@
              (game-loop '(port hostname team) socket coord team)
              )
            (return-from create-client t))
-      (usocket:socket-close socket))))
+      (handler-case (usocket:socket-close socket)
+        (error () (format t "socket closed~%")))
+      )))
 
                                         ; Usage function
 (defun usage ()
