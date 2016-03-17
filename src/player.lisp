@@ -140,7 +140,7 @@
                          (funcall (car state) 'hatching))
                        (incf clock 7)))
                    (setf clock 0))
-               (or (null command)
+               (if (null command)
                 (if (<= 5 (funcall (fourth counter)))
                     (set-and-send command (put-down-incantation-stones level) socket)
                     (if (< (cdar inventory) 4)
