@@ -60,7 +60,7 @@
               ((cl-ppcre:scan *inventory-regex* str)
                (progn
                  (or  (string= "inventaire" (car command))
-                      (format t "error: expected ~a, received inventory" command))
+                      (format t "error: expected ~a, received inventory~%" command))
                 (setf inventory (get-inventory str) command (cdr command))
                 )
                )
@@ -68,7 +68,7 @@
               ((cl-ppcre:scan *vision-regex* str)
                (progn
                  (or  (string= "voir" (car command))
-                      (format t "error: expected ~a, received vision" command))
+                      (format t "error: expected ~a, received vision~%" command))
                 (setf vision (get-vision str) command (cdr command))
                 )
                )
