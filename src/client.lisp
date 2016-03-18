@@ -64,7 +64,7 @@
                  (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
                  )
              (handler-case (game-loop (list port hostname team) socket coord team)
-               (error (c) (format t "WTF ~a~%" c))
+               (error (c) (format t "Error ~a~%" c) (return-from create-client nil))
                )
              )
            (return-from create-client t))
@@ -114,8 +114,10 @@
     (handler-case
       (newloop port hostname team)
       (sb-sys:interactive-interrupt () (format t "Exit...~%") (loop for th in (cdr (sb-thread:list-all-threads))
-            do (sb-thread:terminate-thread th)))
+                                                                    do (sb-thread:terminate-thread th)))
       )
+    (loop for th in (cdr (sb-thread:list-all-threads))
+          do (sb-thread:terminate-thread th))
     )
   )
 
