@@ -39,7 +39,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
      ((string= (format nil "connected: ~a, ~a" team level) msg)
       (progn
         (funcall (third egg) 0)
-        (funcall (car state) 'wandering)
+        (funcall (car state) 'stopping)
         )
       )
      ((and (funcall (cdr state) 'broadcasting) (string= (format nil "present: ~a, ~a" team level) msg))
