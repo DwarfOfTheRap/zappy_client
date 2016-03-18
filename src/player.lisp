@@ -107,13 +107,16 @@
                )
 
               ((cl-ppcre:scan "^\\d$" str)
-               (progn (setf command (cdr command))
+               (progn (or (string= (car command) "connect_nbr")
+                      (format t "error: expected ~a, received connect_nbr ~%" command))
+                 (setf command (cdr command))
                       (if (> (parse-integer str) 0)
-                          (progn (lambda () (create-client (car newcli) (second newcli) (third newcli)))
+                          (progn (sb-thread:make-thread (lambda () (create-client (car newcli) (second newcli) (third newcli))))
+                                 (format t "connected: ~a~%" str)
                                         ; Works against the program logic, but still the best way
                                  (set-and-send command (list (format nil "broadcast connected: ~a, ~a" team level)) socket)
                                  (if (funcall (cdr state) 'hatching)
-                                     (funcall (car state) 'wandering))
+                                     (funcall (car state) 'stopping))
                                  (if (funcall (cdr state) 'broadcasting)
                                      (setf clock 0)))))
 
@@ -153,6 +156,7 @@
                                                                  (funcall (fourth egg)) team)
                                                          "fork") socket)
                              (funcall (third present) 0)
+                             (setf clock 0)
                              (funcall (car state) 'hatching))
                            (incf clock 7)))
                    (setf clock 0))
@@ -183,6 +187,7 @@
             ((funcall (cdr state) 'fork)
              (progn (funcall (car state) 'hatching)
                     (set-and-send command '("fork") socket)
+                    (funcall (second egg))
                     )
              )
 
