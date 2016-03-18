@@ -82,7 +82,10 @@
               ((cl-ppcre:scan *broadcast-regex* str)
                (let ((ret (get-broadcast str team level counter state present inventory egg)))
                  (if ret
-                     (progn (setf msg ret))))
+                     (progn (setf msg ret)
+                            (and (funcall (cdr state) 'respond)
+                                 (> (list-length command) 10)
+                                 (setf command (delete-if #'stringp command :start 10))))))
                )
 
               ((cl-ppcre:scan *push-regex* str)
@@ -156,9 +159,9 @@
             ((funcall (cdr state) 'broadcasting)
              (progn
                (if (> 5 (funcall (fourth present)))
-                   (if (and (> clock 77) (< clock 90))
+                   (if (and (> clock 84) (< clock 99))
                        (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
-                       (if (> clock 90)
+                       (if (> clock 99)
                            (progn
                              (funcall (third egg) (- 4 (funcall (fourth present))))
                              (set-and-send command (list (format nil "broadcast egg: ~a, ~a"
