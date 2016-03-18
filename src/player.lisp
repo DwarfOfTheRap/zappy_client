@@ -115,7 +115,7 @@
                                  (if (funcall (cdr state) 'hatching)
                                      (funcall (car state) 'wandering))
                                  (if (funcall (cdr state) 'broadcasting)
-                                     (setf clock 0))))))
+                                     (setf clock 0)))))
 
                )
               ((string= "mort" str)
