@@ -192,7 +192,8 @@
 
             ((funcall (cdr state) 'putdown)
              (progn (funcall (car state) 'broadcasting)
-                    (set-and-send command '("pose nourriture" "inventaire") socket)
+                    (set-and-send command '("pose nourriture" "pose nourriture"
+                                            "inventaire") socket)
                     )
              )
             ((funcall (cdr state) 'laying)
