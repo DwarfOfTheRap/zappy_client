@@ -44,7 +44,7 @@
               ((cl-ppcre:scan "^(ok)|(ko)$" str)
                (progn
                  (and (or (string= "inventaire" (car command)) (string= "voir" (car command)))
-                      (funcall (car state) 're-sync))
+                          (funcall (car state) 're-sync))
                  (and (string= (car command) (format nil "broadcast lay: ~a" team))
                       (if (> (funcall (fourth egg)) 0)
                           (funcall (car state) 'fork)
@@ -105,6 +105,7 @@
                  (set-and-send command (list (format nil "broadcast level: ~a, ~a" level team)) socket)
                  (funcall (third present) 0)
                  (funcall (car state) 'wandering)
+                 (setf clock 0)
                  )
                )
 
@@ -159,9 +160,9 @@
             ((funcall (cdr state) 'broadcasting)
              (progn
                (if (> 5 (funcall (fourth present)))
-                   (if (and (> clock 84) (< clock 99))
+                   (if (and (> clock 101) (< clock 111))
                        (progn (incf clock 20) (set-and-send command (list "connect_nbr") socket))
-                       (if (> clock 99)
+                       (if (> clock 111)
                            (progn
                              (funcall (third egg) (- 4 (funcall (fourth present))))
                              (set-and-send command (list (format nil "broadcast egg: ~a, ~a"

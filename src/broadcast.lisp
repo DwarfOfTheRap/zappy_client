@@ -9,8 +9,8 @@ and return a tuple (direction . message): (int . symbol) or nil"
         ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'hatching))
          (progn
            (funcall (car state) 'respond)
-           (cons dir 'elevation)))
-        ((funcall (cdr state) 'joining) (cons dir 'elevation))
+           (return-from get-broadcast (cons dir 'elevation))))
+        ((funcall (cdr state) 'joining) (return-from get-broadcast (cons dir 'elevation)))
         ((and (funcall (cdr state) 'broadcasting) (> (cdar inventory) 10))
          (funcall (car state) 'putdown))
         )
@@ -19,7 +19,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
      ((cl-ppcre:scan (format nil "level: \\d, ~a" team) msg)
       (or (= (parse-integer (subseq msg 7 8)) level)
           (funcall (car state) 'hara-kiri)
-        ) 
+        )
       )
      ((cl-ppcre:scan (format nil "egg: \\d, ~a" team) msg)
       (let ((eggs (parse-integer (subseq msg 5 6))))
@@ -52,4 +52,6 @@ and return a tuple (direction . message): (int . symbol) or nil"
       (funcall (first counter)))
      (t nil)
      )
-    (cons dir 'elevation)))
+    nil
+    )
+  )
