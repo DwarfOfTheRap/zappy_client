@@ -30,8 +30,9 @@ and return a tuple (direction . message): (int . symbol) or nil"
         )
       )
      ((string= (format nil "stop ~a, ~a" team level) msg)
-      (if (or (funcall (cdr state) 'broadcasting) (funcall (cdr state) 'respond)
-              (funcall (cdr state) 'waiting) (funcall (cdr state) 'joining))
+      (if (or (funcall (cdr state) 'broadcasting) (funcall (cdr state) 'respond) 
+              (funcall (cdr state) 'putdown) (funcall (cdr state) 'waiting)
+              (funcall (cdr state) 'joining))
         (progn
           (funcall (third present) 0)
           (funcall (third counter) 0)
