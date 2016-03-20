@@ -120,9 +120,9 @@
                               (progn (sb-thread:make-thread (lambda () (create-client (car newcli) (second newcli) (third newcli))))
                                         ; Works against the program logic, but still the best way
                                      (set-and-send command (list (format nil "broadcast connected: ~a, ~a" team level)) socket)
-                                     (if (funcall (cdr state) 'hatching)
+                                     (if (or (funcall (cdr state) 'hatching) (funcall (cdr state) 'redirect-hatch))
                                          (funcall (car state) 'stopping))
-                                     (if (funcall (cdr state) 'broadcasting)
+                                     (if (or (funcall (cdr state) 'putdown) (funcall (cdr state) 'broadcasting))
                                          (setf clock 0)))))
                    )
                )
@@ -268,7 +268,7 @@
 
             ((funcall (cdr state) 'wandering)
              (let ((needs (check-inventory inventory level)) (stock (too-much-stones inventory level)))
-               (if (and (not (member '|nourriture| (needs))) stock)
+               (if (and (not (member '|nourriture| needs)) stock)
                    (set-and-send command (list (format nil "pose ~a" (car stock)) "inventaire") socket)
                    (if (null needs)
                        (progn (set-and-send command (cons (format nil "broadcast ~a, ~a" team level) nil) socket)
