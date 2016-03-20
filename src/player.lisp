@@ -176,11 +176,10 @@
                            (progn
                              (funcall (third egg) (- 4 (funcall (fourth present))))
                              (set-and-send command (list (format nil "broadcast egg: ~a, ~a"
-                                                                 (funcall (fourth egg)) team)
-                                                         "fork") socket)
+                                                                 (funcall (fourth egg)) team)) socket)
                              (funcall (third present) 0)
                              (setf clock 0)
-                             (funcall (car state) 'wait-for-hatch))
+                             (funcall (car state) 'fork))
                            (incf clock 7)))
                    (setf clock 0))
                (if (null command)

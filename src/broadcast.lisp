@@ -6,8 +6,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
     (cond
      ((string= (format nil "~a, ~a" team level) msg)
       (cond
-        ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'redirect-hatch)
-             (funcall (cdr state) 'wait-for-hatch) (funcall (cdr state) 'hatching))
+        ((funcall (cdr state) 'wandering)
          (progn
            (funcall (car state) 'respond)
            (return-from get-broadcast (cons dir 'elevation))))

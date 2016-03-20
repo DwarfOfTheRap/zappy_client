@@ -16,7 +16,7 @@
   (format (usocket:socket-stream socket) "~a" str)
   (handler-case
     (force-output (usocket:socket-stream socket))
-    (error () (sb-thread:abort-thread)))
+    (error () (sb-thread:return-from-thread nil)))
   )
 
                                         ;load file.
@@ -69,7 +69,7 @@
              )
            (return-from create-client t))
       (handler-case (usocket:socket-close socket)
-        (error () (sb-thread:abort-thread))))))
+        (error () (sb-thread:return-from-thread nil))))))
 
                                         ; Usage function
 (defun usage ()
