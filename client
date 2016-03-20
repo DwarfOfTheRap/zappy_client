@@ -1,2 +1,0 @@
-#!/bin/bash
-sbcl --script src/main.lisp $@

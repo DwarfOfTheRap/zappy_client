@@ -4,10 +4,13 @@
       (return-from make-path-2 (list (concatenate 'string "prend " (symbol-name element))))
       (append '("avance") (make-path-2 (- tile 2) element))))
 
-(defun make-path (element)
+(defun make-path (element count-step)
   "create a list of command: take @pair and return @string list"
   (if (null element)
-      (return-from make-path '("gauche" "avance")) )
+      (progn (funcall (first count-step))
+       (return-from make-path (cons "gauche" (loop repeat (funcall (fourth count-step)) collect "avance"))))
+      )
+  (funcall (third count-step) 0)
   (loop for i from 1 to 7
         for j = 0 then (+ 1 j)
         if (<= (* i i) (cdr element))
@@ -41,14 +44,15 @@
   "Function that set path to the broadcasting droid and tell him when he is ready
    @args: int, nil, string, (function ('symbol) -> nil . function ('sym) -> bol)
    @return (list string string ...)"
-  (case dir
-    (1 '("avance"))
-    (2 (find-player vision level 1 '("gauche")))
-    (8 (find-player vision level 2 '("droite")))
-    ((3 4) '("gauche"))
-    ((6 7) '("droite"))
-    (5 '("gauche" "gauche"))
-    (0 (progn (funcall (car state) 'waiting)
-         (cons (format nil "broadcast ready: ~a" team) nil)))
-    )
-  )
+   (append (if (find '|nourriture| (car vision)) '("prend nourriture") '())
+           (case dir
+             (1 '("avance" "inventaire"))
+             (2 (append (find-player vision level 1 '("gauche")) '("inventaire")))
+             (8 (append (find-player vision level 2 '("droite")) '("inventaire")))
+             (3 '("gauche" "avance" "inventaire"))
+             (4 '("gauche"))
+             (5 '("gauche" "gauche" "avance" "inventaire"))
+             (6 '("droite"))
+             (7 '("droite" "avance" "inventaire"))
+             (0 (progn (funcall (car state) 'waiting)
+                       (cons (format nil "broadcast ready: ~a" team) nil))))))

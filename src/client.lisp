@@ -14,7 +14,9 @@
 (defun socket-print (str socket)
   "send string through the socket without waiting"
   (format (usocket:socket-stream socket) "~a" str)
-  (force-output (usocket:socket-stream socket))
+  (handler-case
+    (force-output (usocket:socket-stream socket))
+    (error () (format t "Socket closed~%")))
   )
 
                                         ;load file.
@@ -48,11 +50,11 @@
            (usocket:wait-for-input socket)
            (if (string= (read-line (usocket:socket-stream socket)) "BIENVENUE")
                (socket-print (format nil "~a~%" team) socket)
-               (progn (format t "Communication error: bad first message~%") (return-from create-client nil)))
+               (progn (format t "Communication error: bad first message%") (return-from create-client nil)))
                                         ; Get number of new connections
            (usocket:wait-for-input socket)
            (if (> (handler-case (parse-integer (read-line (usocket:socket-stream socket)))
-                    (error () (format t "Communication error: <nb-team> not a number~%") (return-from create-client nil))) 1)
+                    (error () (format t "Communication error: <nb-client> not a number~%") (return-from create-client nil))) 1)
                (sb-thread:make-thread (lambda () (create-client port hostname team)))
                )
                                         ; Get map coordonates
@@ -61,10 +63,13 @@
              (if (not coord)
                  (progn (format t "Communication error: bad coordinates~%") (return-from create-client nil))
                  )
-             (game-loop '(port hostname team) socket coord team)
+             (handler-case (game-loop (list port hostname team) socket coord team)
+               (error (c) (format t "Error ~a~%" c) (return-from create-client nil))
+               )
              )
            (return-from create-client t))
-      (usocket:socket-close socket))))
+      (handler-case (usocket:socket-close socket)
+        (error () (format t "socket closed~%"))))))
 
                                         ; Usage function
 (defun usage ()
@@ -77,23 +82,23 @@
   t
   )
 
-;(defun thread-closure ()
-;  (let ((main-thread sb-thread:*current-thread*))
-;    (lambda (f)
-;      (sb-thread:make-thread main-thread (lambda () (funcall f))))))
-
 (defun newloop (port hostname team)
     (sb-thread:make-thread (lambda () (create-client port hostname team)))
-    (loop
-      (sleep 1)
-      (if (= 1 (list-length (sb-thread:list-all-threads)))
-        (return-from newloop nil)
+    (unwind-protect 
+      (loop
+        (sleep 1)
+        (if (>= 1 (list-length (sb-thread:list-all-threads)))
+          (return-from newloop nil)
+          )
         )
-    )
+      (loop for th in (cdr (sb-thread:list-all-threads))
+            do (sb-thread:terminate-thread th)
+        )
+      )
   )
                                         ; Entry point: the program start here
-(defun main (lst)
-  (let ((hostname "localhost") team port)
+(defun main ()
+  (let ((lst (cdr *posix-argv*)) (hostname "localhost") team port)
     (loop for a in lst by #'cddr
           for b in (cdr lst) by #'cddr when (and (evenp (length lst)) (>= 6 (length lst))) ; check if args are even and < 6
           do (cond
@@ -106,5 +111,13 @@
                                         ;Check if port or team wasnt given
     (or (not (or (null team) (null port)))
         (and (usage) (return-from main nil)))
-    (newloop port hostname team))
+    (handler-case
+      (newloop port hostname team)
+      (sb-sys:interactive-interrupt () (format t "Exit...~%") (loop for th in (cdr (sb-thread:list-all-threads))
+                                                                    do (sb-thread:terminate-thread th)))
+      )
+    (loop for th in (cdr (sb-thread:list-all-threads))
+          do (sb-thread:terminate-thread th))
+    )
   )
+

@@ -7,10 +7,7 @@ i  @return: (list string string ...)"
           append (loop for j from (nth i stone) downto 1
                         collect (format nil "pose ~a" (nth (+ 1 i) *symbol-list*))
                         ) into ret
-          finally (return (append ret '("incantation")))
-          )
-      )
-  )
+          finally (return (append ret '("incantation"))))))
 
 (defun seek-stone (inventory level)
   "function that check wich object the droid will be looking for
@@ -24,8 +21,8 @@ i  @return: (list string string ...)"
   "Look if food is needed and seek stones otherwise
   @args: (list (list int int ...) (list int int ...) ...); int
   @return (list 'symbol1 'symbol2 ...)"
-  (if (< (cdar inventory) 4) (return-from check-inventory '(|nourriture|)))
-  (if (< (cdar inventory) 9) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
+  (if (< (cdar inventory) 8) (return-from check-inventory '(|nourriture|)))
+  (if (< (cdar inventory) 12) (return-from check-inventory (cons '|nourriture| (seek-stone inventory level))))
   (seek-stone inventory level)
   )
 
