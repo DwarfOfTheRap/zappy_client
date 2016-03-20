@@ -19,6 +19,8 @@
 (defun get-vision (str)
   "Take the vision string response and convert it into a list o strings"
   (let ((tiles-list (cl-ppcre:split ", " (subseq str 1 (- (length str) 1)))))
+    (if (null tiles-list)
+      (setf tiles-list '("" "" "" "")))
     (loop for tiles in (organize-vision tiles-list)
           for tile-num from 0
           for object-list = (cl-ppcre:split "\\s+" tiles)

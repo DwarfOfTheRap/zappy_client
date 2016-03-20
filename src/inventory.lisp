@@ -34,3 +34,11 @@ i  @return: (list string string ...)"
     (loop for x in case-list
           for y = (cl-ppcre:split "\\s+" x)
           collect (cons (intern (first y)) (parse-integer (second y))))))
+
+(defun too-much-stones (inventory level)
+  "function that check if too much stone have been taken
+  @args: (list (list int int ...) (list int int ...) ...); int
+  @return (list 'symbol1 'symbol2 ...)"
+  (loop for i from 1 to 6
+        when (> (cdr (nth i inventory)) (nth (- i 1) (nth (- level 1) *stone-per-level*)))
+          collect (nth i *symbol-list*)))

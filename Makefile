@@ -21,6 +21,8 @@ $(NAME): $(DEP)
 	$(CL) $(FLAGS) $(SRC)
 	@echo [build]: created $@
 
+clean:
+
 fclean:
 	rm -f $(NAME)
 
