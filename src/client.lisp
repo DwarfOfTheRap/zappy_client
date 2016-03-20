@@ -16,7 +16,7 @@
   (format (usocket:socket-stream socket) "~a" str)
   (handler-case
     (force-output (usocket:socket-stream socket))
-    (error () (format t "Socket closed~%")))
+    (error () (sb-thread:abort-thread)))
   )
 
                                         ;load file.
@@ -69,7 +69,7 @@
              )
            (return-from create-client t))
       (handler-case (usocket:socket-close socket)
-        (error () (format t "socket closed~%"))))))
+        (error () (sb-thread:abort-thread))))))
 
                                         ; Usage function
 (defun usage ()
@@ -84,7 +84,7 @@
 
 (defun newloop (port hostname team)
     (sb-thread:make-thread (lambda () (create-client port hostname team)))
-    (unwind-protect 
+    (unwind-protect
       (loop
         (sleep 1)
         (if (>= 1 (list-length (sb-thread:list-all-threads)))
@@ -120,4 +120,3 @@
           do (sb-thread:terminate-thread th))
     )
   )
-
