@@ -127,7 +127,7 @@
                    )
                )
               ((string= "mort" str)
-               (sb-thread:return-from-thread nil)
+               (return-from game-loop nil)
                )
               (t (progn (format t "Unexpected message: ~a~%" str) (setf command (cdr command)))))
             )
