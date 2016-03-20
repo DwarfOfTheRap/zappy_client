@@ -12,7 +12,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
            (funcall (car state) 'respond)
            (return-from get-broadcast (cons dir 'elevation))))
         ((funcall (cdr state) 'joining) (return-from get-broadcast (cons dir 'elevation)))
-        ((and (funcall (cdr state) 'broadcasting) (> (cdar inventory) 12))
+        ((and (funcall (cdr state) 'broadcasting) (> (cdar inventory) 16))
          (funcall (car state) 'putdown))
         )
       )
@@ -31,7 +31,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
         )
       )
      ((string= (format nil "stop ~a, ~a" team level) msg)
-      (if (or (funcall (cdr state) 'broadcasting) (funcall (cdr state) 'respond) 
+      (if (or (funcall (cdr state) 'broadcasting) (funcall (cdr state) 'respond)
               (funcall (cdr state) 'putdown) (funcall (cdr state) 'waiting)
               (funcall (cdr state) 'joining))
         (progn
