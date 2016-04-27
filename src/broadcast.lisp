@@ -6,8 +6,7 @@ and return a tuple (direction . message): (int . symbol) or nil"
     (cond
      ((string= (format nil "~a, ~a" team level) msg)
       (cond
-        ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'redirect-hatch)
-             (funcall (cdr state) 'wait-for-hatch) (funcall (cdr state) 'hatching))
+        ((or (funcall (cdr state) 'wandering) (funcall (cdr state) 'redirection))
          (progn
            (funcall (car state) 'respond)
            (return-from get-broadcast (cons dir 'elevation))))
@@ -17,12 +16,13 @@ and return a tuple (direction . message): (int . symbol) or nil"
         )
       )
 
-     ((cl-ppcre:scan (format nil "level: \\d, ~a" team) msg)
+     ((cl-ppcre:scan (format nil "level: \\d, ~a$" team) msg)
       (or (= (parse-integer (subseq msg 7 8)) level)
-          (funcall (car state) 'hara-kiri)
+          (or (funcall (cdr state) 'level-up)
+              (funcall (car state) 'hara-kiri))
         )
       )
-     ((cl-ppcre:scan (format nil "egg: \\d, ~a" team) msg)
+     ((cl-ppcre:scan (format nil "egg: \\d, ~a$" team) msg)
       (let ((eggs (parse-integer (subseq msg 5 6))))
         (funcall (third egg) eggs)
         (if (> eggs 0)
