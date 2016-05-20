@@ -7,7 +7,9 @@
 make
 
 ### execution
+```
 Usage: ./client -n <team> -p <port> [-h <hostname>]
-          -n team name
-          -p port
-          -h hosting machine. Localhost by default
+         * -n team name
+         * -p port
+         * -h hosting machine. Localhost by default
+         ```
