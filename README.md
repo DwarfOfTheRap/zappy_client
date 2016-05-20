@@ -4,5 +4,10 @@
 42 school project zappy - client
 
 ### compilation
-sbcl --script src/client.lisp
+make
 
+### execution
+Usage: ./client -n <team> -p <port> [-h <hostname>]
+          -n team name
+          -p port
+          -h hosting machine. Localhost by default
